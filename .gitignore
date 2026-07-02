@@ -1,0 +1,16 @@
+# === ROM and copyrighted game binaries — NEVER commit ===
+*.nes
+*.zip
+*.mss
+*save*
+docs/*.pdf
+*.pdf
+
+# === Machine-local / editor / caches ===
+**/.claude/
+**/__pycache__/
+*.pyc
+.DS_Store
+
+# === Binary scratch ===
+*.xlsx
