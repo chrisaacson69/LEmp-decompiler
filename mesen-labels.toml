@@ -638,3 +638,46 @@
 "0xAD54" = { name = "map_cursor_select_city", comment = "map cursor navigation over cities; D-pad + A picks a city, B cancels" }
 "0xAEA9" = { name = "prompt_pick_own_city", comment = "prompt + map_cursor_select_city, require an owned non-supply city" }
 "0xAEFA" = { name = "conquer_country", comment = "a country falls: reassign its officers, clear its $6EF6 relations, update lists" }
+
+[prg.bank15]  # $8000 standalone: new-game setup + scenario select + ending/game-over flow.
+# NOTE: bank 15 also has native helpers in its $9000 region (residue, not yet named).
+"0x8003" = { name = "draw_initial_map", comment = "draw the starting map screen (frame, country map, markers, hud)" }
+"0x808B" = { name = "reset_map_flags", comment = "reset map/music state flags $7B59/$7B5A to 255" }
+"0x809D" = { name = "init_scenario_records", comment = "initialize city/officer/country records + relations from scenario data (bank 250)" }
+"0x81A1" = { name = "reset_screen_state", comment = "reset screen: mode 0, load scene, map bounds, cursor" }
+"0x81C6" = { name = "run_new_game_setup", comment = "new-game setup loop: scenario intro, 'start?' dialog, init records" }
+"0x829B" = { name = "dispatch_game_start", comment = "dispatch on $6FEB: 0 = new game setup, else = game-over sequence" }
+"0x82CF" = { name = "draw_scenario_stat_row", comment = "draw one scenario-info stat row (label + value + icon)" }
+"0x833A" = { name = "draw_scenario_stats", comment = "draw the 5-row scenario info panel" }
+"0x8351" = { name = "choose_side", comment = "choose player side / difficulty (grid menu + confirm)" }
+"0x8417" = { name = "load_saved_game", comment = "load a saved game from SRAM (call_in_bank), report result" }
+"0x84B9" = { name = "scenario_select_menu", comment = "scenario selection menu: pick scenario, load-saved or choose_side" }
+"0x8507" = { name = "wait_240", comment = "wait_frames_x6(40)" }
+"0x8513" = { name = "animate_flag_raise", comment = "animate a flag raising (5-frame sprite sweep)" }
+"0x858E" = { name = "show_ending", comment = "ending screen: portrait, message, scenario result (arg: win/lose)" }
+"0x86A2" = { name = "show_ending_win", comment = "show_ending(0) -- victory" }
+"0x86AD" = { name = "show_ending_lose", comment = "show_ending(1) -- defeat" }
+"0x86B8" = { name = "confirm_end", comment = "draw an end prompt + confirm_dialog" }
+"0x86CD" = { name = "game_over_sequence", comment = "game-over: show ending ($6FEB 4/5), 'The End' screen, hang" }
+
+[prg.bank16]  # $8000 standalone: opening + ending CINEMATICS (title, KOEI logo, story, march, battle).
+# NOTE: bank 16 also has native helpers in its $9000 region (residue, not yet named).
+"0x8003" = { name = "blit_sprite_frame", comment = "set a 16-entry sprite block + wait 1 frame (cinematic frame step)" }
+"0x8019" = { name = "wait_or_start", comment = "wait up to arg frames, early-return if Start pressed" }
+"0x803F" = { name = "show_push_start", comment = "title 'PUSH START' screen (logo blits + sfx + wait for Start)" }
+"0x8115" = { name = "title_sequence", comment = "title screen sequence: fade-in mask, logo, PUSH START, alternates" }
+"0x82B0" = { name = "show_koei_cutscene", comment = "opening cutscene page 1 (KOEI presents / staff blits)" }
+"0x836E" = { name = "typewriter_line", comment = "draw a string one character at a time (skippable)" }
+"0x83A1" = { name = "opening_story", comment = "the Napoleon opening narrative (faces + typewriter text + fades)" }
+"0x85EE" = { name = "run_opening", comment = "run the opening: koei cutscene + story + title sequence" }
+"0x862C" = { name = "dispatch_opening", comment = "dispatch on $6FEB: 0 = normal opening, 3 = demo/attract (run_ending_cinematic)" }
+"0x8660" = { name = "animate_logo", comment = "7-frame logo reveal with accelerating timing" }
+"0x86BD" = { name = "animate_march_step", comment = "advance a marching sprite by (dx=arg1) over 3x3 frames" }
+"0x8732" = { name = "flag_wave", comment = "swap the flag sprite to wave-frame arg (1/2/3) + music" }
+"0x8785" = { name = "marching_scene", comment = "soldiers-marching cinematic (flag_wave + animate_march_step choreography)" }
+"0x8901" = { name = "sort_officers_by_stats", comment = "rank cities' officers into arg[] by stat-nibble sum (top-3, for the demo/ending)" }
+"0x89E9" = { name = "show_ending_cinematic", comment = "ending cinematic: framed scene, portraits, typewriter narrative, borders" }
+"0x8C53" = { name = "zoom_transition", comment = "sprite zoom/scale transition animation (12-step CHR shift)" }
+"0x8EF5" = { name = "battle_cutscene", comment = "scripted battle animation from a $9845 command list (charge/explode)" }
+"0x9063" = { name = "fade_scene", comment = "fade a scene in via 4-step AND-mask reveal, then blit the next" }
+"0x9122" = { name = "run_ending_cinematic", comment = "full ending: logo + marching + story + zoom + battle + fade, then hang" }
