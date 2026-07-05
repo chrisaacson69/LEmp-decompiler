@@ -609,3 +609,32 @@
 "0x8FBE" = { name = "can_deploy_to", comment = "deploy legality: same owner and officer-list not full (<15)" }
 "0x8FEC" = { name = "calc_city_income", comment = "compute a city's gold income (trade/tax/training, cap 9999)" }
 "0x9066" = { name = "calc_city_food", comment = "compute a city's food output (farming*fertility, push_div100)" }
+
+[prg.bank2]  # L2/L3 combat AI + battle resolution + map-city selection + conquest handling.
+# $A000-resident; co-resident with bank 1 ($8000). Called by banks 3-9 (2nd-most-called bank).
+"0xA003" = { name = "play_battle_music", comment = "play battle/result music (26 or 27) + short delay" }
+"0xA01F" = { name = "soldier_readiness", comment = "officer readiness from fields +10/+11 -> 0/1/2" }
+"0xA038" = { name = "calc_officer_strength", comment = "combat strength from stat nibbles (field+5) and soldiers (field+9), scaled" }
+"0xA09C" = { name = "normalize_soldiers", comment = "round soldiers (field+9) to a multiple of 5, sync horses/guns" }
+"0xA0D9" = { name = "set_active_city", comment = "select the active city ($78C0) for a country (mode 0/1/2)" }
+"0xA111" = { name = "officer_status_string", comment = "return the status string for an officer (by field+14 nibble)" }
+"0xA1A5" = { name = "show_capture_result", comment = "screen: show an officer captured/killed/joined outcome" }
+"0xA2A1" = { name = "resolve_siege_round", comment = "one siege/attrition round: casualties via block_copy_far, morale, report" }
+"0xA3EB" = { name = "show_attack_screen", comment = "city-attack confirmation screen (attacker/defender stats, cost)" }
+"0xA66B" = { name = "setup_battle_sprites", comment = "set_chr_bank_alt for battle sprite bank" }
+"0xA67B" = { name = "reset_map_view", comment = "clear map windows + reinit tile allocator" }
+"0xA68F" = { name = "setup_command_screen", comment = "set up the command screen (metasprite, frame, scene, redraw)" }
+"0xA6E9" = { name = "build_ai_relation_targets", comment = "fill $6FD7 AI-target weights (arg2..5) from the $6EF6 relation matrix" }
+"0xA76A" = { name = "pick_target_city", comment = "map cursor loop to pick a target city (own vs enemy by arg)" }
+"0xA823" = { name = "calc_officer_flags", comment = "build an officer status-flags byte (soldiers/threshold bits +9/+8, changed bit)" }
+"0xA897" = { name = "calc_defense_shortfall", comment = "city defense shortfall (soldiers vs need, if besieged/blockaded)" }
+"0xA8C4" = { name = "show_officer_event", comment = "screen: officer event message (name, portrait, string 247+12)" }
+"0xA93B" = { name = "eval_attack_value", comment = "AI: value of attacking a target country (strength ratio, gold, distance)" }
+"0xA9B7" = { name = "eval_defense_value", comment = "AI: value of reinforcing defense against a threat" }
+"0xAA15" = { name = "ai_plan_attack", comment = "AI: pick best attack target among at-war neighbors (eval_attack_value)" }
+"0xAB4E" = { name = "ai_plan_defense", comment = "AI: pick best defensive move among at-war neighbors (eval_defense_value)" }
+"0xAC47" = { name = "animate_cursor_move", comment = "animate the map cursor sprite moving toward (arg1,arg2)" }
+"0xACD1" = { name = "find_city_at_coords", comment = "find the city record at map cell (arg1,arg2), or -1" }
+"0xAD54" = { name = "map_cursor_select_city", comment = "map cursor navigation over cities; D-pad + A picks a city, B cancels" }
+"0xAEA9" = { name = "prompt_pick_own_city", comment = "prompt + map_cursor_select_city, require an owned non-supply city" }
+"0xAEFA" = { name = "conquer_country", comment = "a country falls: reassign its officers, clear its $6EF6 relations, update lists" }
