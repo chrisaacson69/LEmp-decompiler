@@ -1199,3 +1199,56 @@
 "0xAB86" = { name = "resolve_charge", comment = "resolve a charge attack: repeated melee rounds until a side breaks; capture/rout" }
 "0xAC4D" = { name = "bombard_wall", comment = "artillery bombard of a wall cell: strength roll -> breach marker (terrain 10/26) + animation" }
 "0xAD7D" = { name = "animate_repel", comment = "animate a unit being knocked back / repelled after losing an engagement" }
+
+[prg.bank14]  # $A000 TACTICAL battle AI -- per-unit decision engine (co-resident w/ bank 10, dispatched
+# from bank 11's run_ai_turn). ai_battle_turn assesses, ai_pick_strategy sets mem_7B12, then ai_run_unit
+# dispatches each unit by type -> charge/melee/move/bombard/reinforce/capture/retreat/rally. score_* fns
+# are passed by address to the native scanners ai_pick_best_unit ($BAF7)/ai_scan_best_cell ($B9A0).
+"0xA003" = { name = "ai_assess_battle", comment = "count own soldiers/active units and the enemy side; cache into mem_7B32/7B34/7B36" }
+"0xA035" = { name = "score_charge_target", comment = "scoring fn: a unit's charge-attack value (terrain + combat base, x2 if charging)" }
+"0xA080" = { name = "ai_pick_strategy", comment = "choose the AI battle strategy code (mem_7B12: attack/hold/retreat/withdraw) from ratio+time" }
+"0xA1A9" = { name = "ai_battle_turn", comment = "THE AI battle turn: assess, pick strategy, then run each active unit until battle ends" }
+"0xA216" = { name = "score_charge_break", comment = "scoring fn: chance a charge breaks a target (attack vs defense, morale)" }
+"0xA2CB" = { name = "ai_try_charge", comment = "AI: if strategy allows, pick a charge target and resolve the charge" }
+"0xA309" = { name = "score_melee_target", comment = "scoring fn: melee target value (attack vs defense, gate/terrain modifiers)" }
+"0xA3A3" = { name = "ai_pick_attack_cell", comment = "pick the best adjacent cell to attack from (terrain-openness weighted)" }
+"0xA4B3" = { name = "ai_try_melee", comment = "AI: find a melee target and attack it (optionally repositioning first)" }
+"0xA4F2" = { name = "score_move_target", comment = "scoring fn: value of advancing on an enemy (range/ambush/terrain checks)" }
+"0xA5CD" = { name = "score_artillery_target", comment = "scoring fn: artillery (type 2) target value by distance" }
+"0xA5FA" = { name = "ai_move_then_act", comment = "execute the queued move, then bombard (artillery) or melee as a follow-up" }
+"0xA677" = { name = "ai_defend_gate", comment = "AI holding a gate cell (terrain 6): stand and attack the assailant" }
+"0xA6C1" = { name = "ai_advance_and_attack", comment = "AI: advance toward the target cell, then move/attack" }
+"0xA710" = { name = "score_near_gate", comment = "scoring fn: proximity/eligibility for a gate cell (terrain 6)" }
+"0xA756" = { name = "score_adjacent_enemy", comment = "scoring fn: adjacent-enemy attack value (terrain-adjusted)" }
+"0xA79A" = { name = "ai_choose_move", comment = "AI movement decision tree: gate assault vs advance vs artillery positioning" }
+"0xA8D2" = { name = "score_ranged_pursue", comment = "scoring fn: pursue-at-range value (distance threshold + 80% roll)" }
+"0xA91E" = { name = "ai_try_ranged", comment = "AI: try a ranged/pursue action against a distant enemy" }
+"0xA943" = { name = "ai_should_hold_gate", comment = "decide whether to hold a gate cell rather than advance" }
+"0xA99F" = { name = "ai_act_melee_unit", comment = "action selector for a melee (infantry) unit: charge/melee/move/rally" }
+"0xA9DE" = { name = "ai_act_charge_unit", comment = "action selector for a charge (cavalry) unit: charge/melee/move/rally" }
+"0xAA1D" = { name = "ai_act_ranged_unit", comment = "action selector for a ranged (artillery) unit: bombard/ranged/move/rally" }
+"0xAA50" = { name = "ai_should_act", comment = "precondition: should this unit act this turn, or is it pinned/routing?" }
+"0xAAE9" = { name = "ai_run_unit", comment = "run one AI unit's turn: cursor, should-act, gate/special, dispatch by type ($BF38)" }
+"0xAB19" = { name = "set_path_dir", comment = "set a cell's stored move-direction nibble ($7A76)" }
+"0xAB3A" = { name = "trace_path_dirs", comment = "trace the movement path from a target back to the unit, recording directions" }
+"0xABC6" = { name = "ai_try_gate_assault", comment = "AI: if adjacent to a breachable gate (terrain 10), assault it" }
+"0xAC5B" = { name = "score_reinforce_unit", comment = "scoring fn: value of a reserve unit as a reinforcement (soldiers + skill)" }
+"0xACA6" = { name = "ai_try_reinforce", comment = "AI: merge a fresh reserve unit into the front (soldier count-gated)" }
+"0xAD27" = { name = "score_capture_target", comment = "scoring fn: routed enemy (flag 32) worth trying to capture" }
+"0xAD71" = { name = "ai_try_capture", comment = "AI: attempt to capture a routed enemy officer" }
+"0xADB9" = { name = "ai_try_deploy_relief", comment = "AI: deploy a held-back relief unit onto the field when outnumbered" }
+"0xAE36" = { name = "ai_try_special", comment = "AI special actions when the commander is active: reinforce / capture / relief" }
+"0xAE79" = { name = "ai_try_bombard", comment = "AI: bombard a wall cell if the unit is lined up on it" }
+"0xAEEA" = { name = "ai_check_rout", comment = "AI unit rout/repel check: low relative strength late in battle -> flee" }
+"0xAF7E" = { name = "ai_retreat_unit", comment = "AI: retreat a unit off the field (pick a retreat city, then defeat/withdraw)" }
+"0xAFBD" = { name = "ai_rally", comment = "AI fallback: rally in place, raising the officer's morale (+13)" }
+"0xB005" = { name = "score_cell_distance", comment = "scoring fn: 20 - distance from a cell to the active unit" }
+"0xB022" = { name = "ai_nearest_enemy_dist", comment = "distance to the nearest enemy cell (via the $B9A0 cell scan)" }
+"0xB035" = { name = "try_step_cost", comment = "attempt one movement step onto a cell, deducting the move-point cost" }
+"0xB09C" = { name = "ai_move_unit", comment = "move a unit toward a target cell: pathing, ambush handling, engage-on-arrival" }
+"0xB14C" = { name = "ai_execute_move", comment = "execute the AI unit's move to ($7746,$7747): build the path then walk it" }
+"0xB676" = { name = "ai_reset_unit_scan", comment = "NATIVE: reset the per-turn AI unit-scan/scoring state" }
+"0xB84D" = { name = "adjacent_terrain_is", comment = "NATIVE: true if a cell adjacent to (col,row) has the given terrain type (arg)" }
+"0xB8B5" = { name = "ai_pick_reserve_unit", comment = "NATIVE: pick a reserve unit from a side header to deploy as reinforcement" }
+"0xB9A0" = { name = "ai_scan_best_cell", comment = "NATIVE: scan battlefield cells, score each via the fn arg, leave the best score in mem_7B2A" }
+"0xBAF7" = { name = "ai_pick_best_unit", comment = "NATIVE: scan the active unit list, score each via the fn address in the arg, return the best" }
