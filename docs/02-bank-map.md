@@ -99,27 +99,22 @@ writing it under a manual-confirmed cap) and then **re-confirmed** independently
 the info renderers (5/6), and the turn engine (17). City: +5 pop, +14 gold, +16 food, +18 materials,
 +20 soldiers, +22 horses, +24 guns, +26 wall, +27 policy/event flags.
 
-## The second VM-entry ($E2E3) — a whole 2nd bytecode class (found 2026-07-04)
+## The `$E2E3` trampoline — a NATIVE-call convention (solved 2026-07-04)
 
-The engine has **two vm-entry stubs**, not one. Beside `JSR $E509` (the 757-sub main corpus), a variant
-`JSR $E2E3` marks a second class of bytecode subs. `$E2E3` is the same interpreter with a different frame
-setup: it advances the code pointer by **4** (vs `$E509`'s 3), so its subs are `JSR $E2E3 <filler:1><frame:2>`
-— body at **stub+6**, frame word at **stub+4** (`$E509` = body+5, frame+3). Census:
+There is a second engine entry `$E2E3` beside the `$E509` vm-entry, but it is **not** a second bytecode
+class — it is a **native-6502 call convention**. A sub whose stub is `JSR $E2E3 …` runs the `$E2E3`
+prologue (which builds a VM-style frame: `$04`=fp over the caller's args, saves the VM regs) and then
+`jmp ($0008)` into **native 6502 code at stub+6**, having pushed `$E35A` so the native body `RTS`es back
+into the VM. So the VM can `CALL_abs` these like bytecode subs, but their bodies are 6502 that read
+args/locals via `($04),y`. This is why they were (correctly) tagged `{native}` and never decompiled.
 
-- **Bank 13** — its bank-entry *header* is `JSR $E2E3`, but its 42 command subs are standard `$E509` → it
-  decompiles cleanly and is now **named** (the win). It was wrongly excluded as an "anomaly".
-- **46 `$E2E3` subs interleaved** in banks 0/1/2/8/9/10/12/14 (bank 2 = 12, bank 14 = 9, banks 1/12 = 8 each).
-  These are what the disassembler mis-tagged `{native}`. They are **bytecode, not native**.
-
-**Decode status:** getting the stub/frame offset right (body+6, frame+4) yields sane signatures, but the
-`$E2E3` bodies still don't decode with the current decoder — they use extra opcodes (e.g. `$F0`/`$99`, whose
-handlers are the default no-op slot `$EC8A` yet whose operand lengths differ) and appear to read the
-bytecode IP from a different ZP pointer. **Full `$E2E3` decompilation is an open research item** (needs the
-variant's operand-length table + IP model). Until then the 46 are labeled from call-site contracts, and the
-`{native}` tags on their call sites are known-incorrect (they are bytecode).
+- **Bank 13** — its bank-entry header is a `$E2E3` native trampoline, but its 42 command subs are standard
+  `$E509` bytecode → decompiled cleanly and **named** (the win; it was wrongly excluded as an "anomaly").
+- **46 `$E2E3` native helpers** interleaved in banks 0/1/2/8/9/10/12/14 (bank 2 = 12, bank 14 = 9, banks
+  1/12 = 8 each) — named by disassembling the 6502 at stub+6 + their call-site contracts. These + the 9
+  pure-native leaves are the "native residue" from the bank walk, now resolved.
 
 ## Open items
-- **Decode the `$E2E3` bytecode dialect** (above) — recovers the 46 interleaved subs as real C.
 - **Dynamic bank args** (bank 1 `set_prg`×4, bank 31 `far_call`/`copy`/`set_prg`): the bank is computed
   at runtime → needs caller-value analysis to resolve those edges.
 - **Data-bank contents:** 21, 22, 24, 25, 18 not yet dumped (19/20/26 done in [01-data-tables](01-data-tables.md)).

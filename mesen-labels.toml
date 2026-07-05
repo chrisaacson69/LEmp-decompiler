@@ -484,6 +484,9 @@
 # Graphics (faces/icons/map/HUD) + record-list ops + the $6EF6 country diplomacy matrix.
 # Some diplomacy-flag predicates are provisional (bit meaning pending the diplomacy command-walk).
 # --- native 6502 leaf helpers (seed-disasm-confirmed; NOT $E2E3 bytecode) ---
+# --- $E2E3 native helpers (JSR $E2E3 frame-prologue; disasm+call-site named) ---
+"0xB4E6" = { name = "get_aggregate_stat", comment = "NATIVE($E2E3): return aggregate stat index N of a country/city ($7068/$7176) -- officer-skill sums / national totals; heavily used" }
+"0xB75A" = { name = "refresh_city_records", comment = "NATIVE($E2E3): refresh a city's officer records/markers after a roster change" }
 "0xBC7E" = { name = "region_dominant_country", comment = "NATIVE: return the country controlling map-region arg (scans the region city table @ $DF58)" }
 "0xA003" = { name = "draw_face_at_3_10", comment = "draw_face(3,10,arg) -- portrait at fixed slot" }
 "0xA010" = { name = "blit_icon_9x7", comment = "blit a 9x7 metasprite indexed by arg3 (<9) from table $BB1E/$BD16 (bank 243)" }
@@ -551,6 +554,15 @@
 # NOTE: bank 1 also has NATIVE helpers in its $9000 region (sub_9D9B/$92E8/$90A4/...) called by this
 # bytecode -- not yet named (paged-bank native residue, separate from the fixed-region floor).
 # --- native 6502 leaf helpers (seed-disasm-confirmed; NOT $E2E3 bytecode) ---
+# --- $E2E3 native helpers (JSR $E2E3 frame-prologue; disasm+call-site named) ---
+"0x90A4" = { name = "fill_records_ff", comment = "NATIVE($E2E3): fill `count` record entries at a pointer with $FF (init)" }
+"0x916F" = { name = "country_strength_tier", comment = "NATIVE($E2E3): a country's strength/size tier (tested vs thresholds 1/5)" }
+"0x923E" = { name = "officer_value_923e", comment = "NATIVE($E2E3, leaf): compute a per-officer value (returned via frame)" }
+"0x92E8" = { name = "calc_92e8", comment = "NATIVE($E2E3, leaf): compute a value from an arg via $E382 (div/mul), using $789F/$78A0" }
+"0x9367" = { name = "city_records_op_9367", comment = "NATIVE($E2E3): walk a city's officer records applying mode arg (2/4)" }
+"0x9785" = { name = "ally_joined_war", comment = "NATIVE($E2E3): true if a country's ally has joined the war (relation predicate helper)" }
+"0x99EC" = { name = "estimate_city_need", comment = "NATIVE($E2E3): estimate a city's supply/defense need (-> mem_78BA)" }
+"0x9BCC" = { name = "city_test_9bcc", comment = "NATIVE($E2E3): boolean test on a city record by flag arg" }
 "0x9D73" = { name = "scan_cities_field4", comment = "NATIVE: scan the $7176 city array (46 entries, stride 28) testing field +4" }
 "0x9D9B" = { name = "clear_all_officer_bit7", comment = "NATIVE: clear bit 7 of every officer's +14 status field ($6005 array, 255 x 15 bytes)" }
 "0x9DBE" = { name = "foreach_list_node", comment = "NATIVE: walk a record's linked list (+2 = next ptr), applying helpers $9EAD/$9E74 per node" }
@@ -618,6 +630,19 @@
 
 [prg.bank2]  # L2/L3 combat AI + battle resolution + map-city selection + conquest handling.
 # $A000-resident; co-resident with bank 1 ($8000). Called by banks 3-9 (2nd-most-called bank).
+# --- $E2E3 native helpers (JSR $E2E3 frame-prologue; disasm+call-site named) ---
+"0xB03C" = { name = "record_walk_b03c", comment = "NATIVE($E2E3, leaf): walk a null-terminated record list" }
+"0xB28C" = { name = "calc_b28c", comment = "NATIVE($E2E3, leaf): compute a city value via $E382 (-> $78AC)" }
+"0xB2D4" = { name = "read_record_field14", comment = "NATIVE($E2E3): read a record's +14 status field via an arg pointer" }
+"0xB34F" = { name = "record_field9_b34f", comment = "NATIVE($E2E3): read a record's +9 (soldiers) field (null-guarded)" }
+"0xB38A" = { name = "record_field9_b38a", comment = "NATIVE($E2E3): read a record's +9 (soldiers) field (variant of $B34F)" }
+"0xB3C6" = { name = "get_record_field7", comment = "NATIVE($E2E3): return a record's +7 (loyalty) field via an arg pointer" }
+"0xB3E0" = { name = "calc_b3e0", comment = "NATIVE($E2E3, leaf): compute a value from an arg (compares vs $30)" }
+"0xB421" = { name = "find_city_officer", comment = "NATIVE($E2E3): return a city record/officer selected by index N (-> mem_78C0)" }
+"0xB523" = { name = "officer_combat_rank", comment = "NATIVE($E2E3): an officer's combat rank/rating (callers min-select on it)" }
+"0xB613" = { name = "side_combat_value_b613", comment = "NATIVE($E2E3): per-side combat value by side index (battle helper)" }
+"0xB76A" = { name = "find_target_city", comment = "NATIVE($E2E3): return a target/capital city for a country (-> mem_7CD1)" }
+"0xB87B" = { name = "load_ai_ruler", comment = "NATIVE($E2E3): load the active country's ruler officer into $78C0 (AI setup)" }
 "0xA003" = { name = "play_battle_music", comment = "play battle/result music (26 or 27) + short delay" }
 "0xA01F" = { name = "soldier_readiness", comment = "officer readiness from fields +10/+11 -> 0/1/2" }
 "0xA038" = { name = "calc_officer_strength", comment = "combat strength from stat nibbles (field+5) and soldiers (field+9), scaled" }
@@ -693,6 +718,10 @@
 # morale/rout/capture, the field AI, battle-map windowing + combat animations.
 # NOTE: bank 10 also has native helpers in its $9000 region (sub_9BA9/$9D97/$9DA9/... -- residue, not yet named).
 # --- native 6502 leaf helpers (seed-disasm-confirmed; NOT $E2E3 bytecode) ---
+# --- $E2E3 native helpers (JSR $E2E3 frame-prologue; disasm+call-site named) ---
+"0x98E7" = { name = "cell_distance", comment = "NATIVE($E2E3): step distance between two battlefield cells (c1,r1,c2,r2) -- THE range primitive" }
+"0x9AE9" = { name = "cell_defense_value", comment = "NATIVE($E2E3): terrain/defense value at a cell for a unit side (col,row,side)" }
+"0x9BA9" = { name = "can_step_dir", comment = "NATIVE($E2E3): step from (col,row) in direction arg; return the target cell or 255 if blocked" }
 "0x9C6E" = { name = "step_in_direction", comment = "NATIVE: set $7746/$7747 to the cell one step in dir from (col,row); return its terrain (255 if off-map)" }
 "0x9D97" = { name = "get_unit_cell", comment = "NATIVE: write a battlefield unit's (col,row) to two out-pointers" }
 "0x9DA9" = { name = "place_cell_sprite", comment = "NATIVE: compute the sprite tile position ($7871-73) for a battlefield cell" }
@@ -921,6 +950,9 @@
 [prg.bank8]  # $A000 COMPUTER-PLAYER AI (dispatched via $BEF6): decide + execute one command per
 # AI city/officer turn. ai_choose_command evaluates the ai_want_* predicates and runs the matching
 # ai_execute_* (recruit/develop/trade/train/speech/reward/move/attack). Confirms the city schema.
+# --- $E2E3 native helpers (JSR $E2E3 frame-prologue; disasm+call-site named) ---
+"0xB456" = { name = "get_city_soldiers", comment = "NATIVE($E2E3): return the current city's ($7CD1) soldier count (+20 word)" }
+"0xBADB" = { name = "clear_ai_battle_vars", comment = "NATIVE($E2E3): clear the AI battle work vars ($78A8-$78AF)" }
 "0xA003" = { name = "dispatch_ai", comment = "call the current AI phase handler via jump table $BEF6[mem_76A0]" }
 "0xA013" = { name = "ai_can_afford_metal", comment = "AI: is a needed metal amount within the national metal pool ($7076)" }
 "0xA03C" = { name = "ai_want_transport", comment = "AI predicate: should transport soldiers/gold to a front-line city" }
@@ -1122,8 +1154,8 @@
 "0xBA34" = { name = "ai_move_officer_to_city", comment = "reassign officer mem_78C0 into the picked city mem_7CD1" }
 "0xBA6E" = { name = "ai_apply_city_resources", comment = "write gold/food/materials (mem_78BA/BC/BE) into city +14/+16/+18" }
 "0xBACA" = { name = "ai_mark_only", comment = "mark the city acted with no resource change (mark_city_acted)" }
-"0xBAD3" = { name = "ai_pick_diplo_target", comment = "E2E3-bytecode (2nd vm-entry, decode pending): pick/return the target country (mem_78A4) for AI diplomacy action index arg" }
-"0xBCB0" = { name = "ai_pick_action_city", comment = "E2E3-bytecode (2nd vm-entry, decode pending): pick/return a city for AI domestic action index arg (from mem_76A2's cities)" }
+"0xBAD3" = { name = "ai_pick_diplo_target", comment = "NATIVE (JSR $E2E3 frame prologue): pick/return the target country (mem_78A4) for AI diplomacy action index arg" }
+"0xBCB0" = { name = "ai_pick_action_city", comment = "NATIVE (JSR $E2E3 frame prologue): pick/return a city for AI domestic action index arg (from mem_76A2's cities)" }
 
 [prg.bank11]  # $A000 TACTICAL (field) BATTLE turn engine (co-resident with bank 10's $8000 library).
 # run_battle_loop drives up to 31 rounds; each round a side runs run_player_turn or run_ai_turn:
@@ -1189,6 +1221,15 @@
 # setup_battle loads the terrain grid, deployment zones, gates and weather, then hands off to the
 # bank-11 AI deploy controllers. Also the charge / gate-breach / wall-bombard combat animations.
 # Battle-domain only; no city-schema changes. Uses bank-10's $8000 unit library + bank 11.
+# --- $E2E3 native helpers (JSR $E2E3 frame-prologue; disasm+call-site named) ---
+"0xAF12" = { name = "calc_af12", comment = "NATIVE($E2E3, leaf): compute a value from cell args via $E235" }
+"0xAFB8" = { name = "read_cell_args_afb8", comment = "NATIVE($E2E3, leaf): read a unit's cell args (+0B/+0D) into result slots" }
+"0xB0FE" = { name = "mark_unit_selectable", comment = "NATIVE($E2E3): flag a unit for the select set (pre-selection setup)" }
+"0xB685" = { name = "count_units_in_range", comment = "NATIVE($E2E3): count units of a side in range (mode,arg)" }
+"0xB8E6" = { name = "unit_query", comment = "NATIVE($E2E3): query the active unit by mode N (returns bool/value)" }
+"0xBA1C" = { name = "get_active_unit", comment = "NATIVE($E2E3): get/select the active battle unit (mode,arg)" }
+"0xBC1A" = { name = "reinforcements_available", comment = "NATIVE($E2E3): true if a region can still send battle reinforcements" }
+"0xBDB6" = { name = "check_weather_break", comment = "NATIVE($E2E3): battle-weather state check (mem_780B == 4) per round" }
 "0xA003" = { name = "battle_screen_dispatch", comment = "battle-screen action dispatch via jump table $BEDA[mem_76A0] (target of dispatch_battle_screen)" }
 "0xA013" = { name = "rle_fill_zone", comment = "expand one run-length terrain/zone segment into the $7880 zone map" }
 "0xA05D" = { name = "build_deploy_map", comment = "build the battlefield deployment-zone map ($7880) from the city's battle data (bank 245)" }
@@ -1216,6 +1257,11 @@
 # from bank 11's run_ai_turn). ai_battle_turn assesses, ai_pick_strategy sets mem_7B12, then ai_run_unit
 # dispatches each unit by type -> charge/melee/move/bombard/reinforce/capture/retreat/rally. score_* fns
 # are passed by address to the native scanners ai_pick_best_unit ($BAF7)/ai_scan_best_cell ($B9A0).
+# --- $E2E3 native helpers (JSR $E2E3 frame-prologue; disasm+call-site named) ---
+"0xB1BF" = { name = "ai_helper_b1bf", comment = "NATIVE($E2E3, leaf): AI helper -- seeds a result slot (6), walks an arg record" }
+"0xB461" = { name = "ai_helper_b461", comment = "NATIVE($E2E3, leaf): AI helper -- sets up a call with arg (0x14)" }
+"0xBBDC" = { name = "ai_init_targets", comment = "NATIVE($E2E3): initialize the AI target-result slots to $FF" }
+"0xBE14" = { name = "get_unit_loyalty", comment = "NATIVE($E2E3): return a battle unit officer's +7 (loyalty) field" }
 "0xA003" = { name = "ai_assess_battle", comment = "count own soldiers/active units and the enemy side; cache into mem_7B32/7B34/7B36" }
 "0xA035" = { name = "score_charge_target", comment = "scoring fn: a unit's charge-attack value (terrain + combat base, x2 if charging)" }
 "0xA080" = { name = "ai_pick_strategy", comment = "choose the AI battle strategy code (mem_7B12: attack/hold/retreat/withdraw) from ratio+time" }
@@ -1259,11 +1305,11 @@
 "0xB035" = { name = "try_step_cost", comment = "attempt one movement step onto a cell, deducting the move-point cost" }
 "0xB09C" = { name = "ai_move_unit", comment = "move a unit toward a target cell: pathing, ambush handling, engage-on-arrival" }
 "0xB14C" = { name = "ai_execute_move", comment = "execute the AI unit's move to ($7746,$7747): build the path then walk it" }
-"0xB676" = { name = "ai_reset_unit_scan", comment = "E2E3-bytecode (2nd vm-entry, decode pending): reset the per-turn AI unit-scan/scoring state" }
-"0xB84D" = { name = "adjacent_terrain_is", comment = "E2E3-bytecode (2nd vm-entry, decode pending): true if a cell adjacent to (col,row) has the given terrain type (arg)" }
-"0xB8B5" = { name = "ai_pick_reserve_unit", comment = "E2E3-bytecode (2nd vm-entry, decode pending): pick a reserve unit from a side header to deploy as reinforcement" }
-"0xB9A0" = { name = "ai_scan_best_cell", comment = "E2E3-bytecode (2nd vm-entry, decode pending): scan battlefield cells, score each via the fn arg, leave the best score in mem_7B2A" }
-"0xBAF7" = { name = "ai_pick_best_unit", comment = "E2E3-bytecode (2nd vm-entry, decode pending): scan the active unit list, score each via the fn address in the arg, return the best" }
+"0xB676" = { name = "ai_reset_unit_scan", comment = "NATIVE (JSR $E2E3 frame prologue): reset the per-turn AI unit-scan/scoring state" }
+"0xB84D" = { name = "adjacent_terrain_is", comment = "NATIVE (JSR $E2E3 frame prologue): true if a cell adjacent to (col,row) has the given terrain type (arg)" }
+"0xB8B5" = { name = "ai_pick_reserve_unit", comment = "NATIVE (JSR $E2E3 frame prologue): pick a reserve unit from a side header to deploy as reinforcement" }
+"0xB9A0" = { name = "ai_scan_best_cell", comment = "NATIVE (JSR $E2E3 frame prologue): scan battlefield cells, score each via the fn arg, leave the best score in mem_7B2A" }
+"0xBAF7" = { name = "ai_pick_best_unit", comment = "NATIVE (JSR $E2E3 frame prologue): scan the active unit list, score each via the fn address in the arg, return the best" }
 
 [prg.bank17]  # $8000 TURN-ADVANCE / monthly-upkeep + random-events engine ($8000 library, banks_at_8000).
 # advance_turn rolls the calendar (month $6FE8/year $6FE6/season $6FE9); run_monthly_updates dispatches
