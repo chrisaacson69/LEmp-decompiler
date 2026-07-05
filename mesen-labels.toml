@@ -1252,3 +1252,69 @@
 "0xB8B5" = { name = "ai_pick_reserve_unit", comment = "NATIVE: pick a reserve unit from a side header to deploy as reinforcement" }
 "0xB9A0" = { name = "ai_scan_best_cell", comment = "NATIVE: scan battlefield cells, score each via the fn arg, leave the best score in mem_7B2A" }
 "0xBAF7" = { name = "ai_pick_best_unit", comment = "NATIVE: scan the active unit list, score each via the fn address in the arg, return the best" }
+
+[prg.bank17]  # $8000 TURN-ADVANCE / monthly-upkeep + random-events engine ($8000 library, banks_at_8000).
+# advance_turn rolls the calendar (month $6FE8/year $6FE6/season $6FE9); run_monthly_updates dispatches
+# the seasonal batch: tax/commerce income, food & materials consumption, starvation, population growth,
+# officer aging/death/succession, stat decay, AI-weight recompute, and the random disasters. Event subs
+# are named by mechanism + status-bar icon (exact disaster inferred from flag/stat). Re-confirms schema.
+"0x8003" = { name = "draw_message_box", comment = "draw a framed event message box (string arg) at (8,10)" }
+"0x803C" = { name = "load_fullscreen_image", comment = "load a full-screen graphic (bank 1) into the nametable, set screen mode" }
+"0x80A9" = { name = "run_monthly_updates", comment = "dispatch the seasonal batch of upkeep phases by month (mem_6FE8 1-12)" }
+"0x81B2" = { name = "run_scheduled_events", comment = "run scheduled/scenario events for the turn (keyed on mem_6FEA)" }
+"0x81D7" = { name = "advance_turn", comment = "THE turn-advance: bump month/year/season, run events + all monthly upkeep phases" }
+"0x8233" = { name = "starve_officer_soldiers", comment = "cut an officer's soldiers(+9) on a food shortfall; clear pending orders" }
+"0x8280" = { name = "draw_event_city_line", comment = "draw an 'event at city N' status line (message + city name)" }
+"0x82A3" = { name = "flash_event_city", comment = "highlight/flash the map marker of a city where an event fired" }
+"0x8350" = { name = "end_event_flash", comment = "end the event highlight and redraw the city markers" }
+"0x8370" = { name = "draw_event_icon", comment = "draw an event-type icon (arg) in the status bar" }
+"0x838B" = { name = "show_event_portrait", comment = "show an event portrait + framed message" }
+"0x83AC" = { name = "set_screen_and_frame", comment = "switch screen halves and draw the UI frame (arg)" }
+"0x83CC" = { name = "collect_tax_income", comment = "each country: turn cities' commerce into national gold (+8) and city gold (+14)" }
+"0x8428" = { name = "apply_commerce_income", comment = "recompute city gold(+14) and national gold from the commerce stat" }
+"0x8492" = { name = "consume_materials", comment = "consume national materials(+12) for cities flagged with the supply policy bit" }
+"0x84DE" = { name = "distribute_food_supply", comment = "food supply/consumption: draw from the national food reserve(+16) per supply city" }
+"0x8581" = { name = "officer_desertion", comment = "low-loyalty officers may desert to a neighbouring country (loyalty +7 roll)" }
+"0x86A2" = { name = "feed_soldiers", comment = "distribute food to each city's soldiers; shortfall starves them (calls starve_officer)" }
+"0x8834" = { name = "apply_trade_income", comment = "trade cities: grow materials(+18) into the national materials reserve(+10)" }
+"0x88A8" = { name = "update_public_order", comment = "recompute each city's public order(+13) from tax/supply/loyalty" }
+"0x89A1" = { name = "decay_monthly_stats", comment = "monthly decay of loyalty(+7), order(+26) and develop stats for every city" }
+"0x89FF" = { name = "recompute_ai_weights", comment = "recompute the AI relation weights ($6FD7) from $6EF6 and mem_6FEA" }
+"0x8A8F" = { name = "flag_unrest_cities", comment = "flag low order/loyalty cities with the unrest bit (+27 &8); raises icon 7" }
+"0x8B2A" = { name = "grow_population", comment = "monthly city population(+5) growth (capped 9999)" }
+"0x8B76" = { name = "age_in_officers", comment = "officers who have come of age (birth year vs mem_6FE6) join a country" }
+"0x8CC0" = { name = "update_commerce_stat", comment = "recompute each city's commerce develop stat(+18) from tax(+12)" }
+"0x8D53" = { name = "update_agriculture_stat", comment = "recompute each city's agriculture stat(+11) from food output(+16)" }
+"0x8DDF" = { name = "event_plague", comment = "30% chance: a plague hits cities -- heavy loyalty/soldier loss (icon 9)" }
+"0x8ED4" = { name = "event_famine", comment = "a famine batch: cut food/materials/industry stores and morale (icon 6)" }
+"0x9098" = { name = "apply_war_attrition", comment = "reduce the national soldier reserve(+14) by war-weariness (+26)" }
+"0x90F0" = { name = "event_uprising", comment = "~1%/city uprising: cut order(+10), set the uprising flag (+27 &4); icon 8" }
+"0x915B" = { name = "event_epidemic", comment = "periodic epidemic (year%5 gated): population(+5)/army loss, set +27 &2; icon 9" }
+"0x92EF" = { name = "clear_epidemic_flag", comment = "recover from an epidemic: clear the +27 &2 flag by public order" }
+"0x9332" = { name = "quell_uprising", comment = "recover from an uprising: 50% clear the +27 &4 flag" }
+"0x9395" = { name = "restore_industry_stat", comment = "recompute each city's industry stat(+16) after an event" }
+"0x93D5" = { name = "event_uprising_persist", comment = "an ongoing uprising batch: ~2%/city, updates industry(+16); icon 10" }
+"0x943E" = { name = "event_epidemic_spread", comment = "an epidemic spreads to adjacent cities (city_data7), set +27 &2; icon 9" }
+"0x95F0" = { name = "find_free_officer", comment = "find an unassigned officer belonging to a country (for succession)" }
+"0x9634" = { name = "find_country_of_officer", comment = "find which country an officer is the head of (ruler lookup)" }
+"0x9665" = { name = "move_army_to_city", comment = "transfer a departed officer's soldiers(+20)/horses(+22)/guns(+24) into the city" }
+"0x969E" = { name = "dissolve_country", comment = "a fallen country: release all its officers to the government, clear its $6EF6 relations" }
+"0x979B" = { name = "promote_successor", comment = "promote a successor to a vacant post (find_free_officer or the strongest heir)" }
+"0x9879" = { name = "find_highest_ambition", comment = "return the officer with the greatest ambition in a list" }
+"0x98A3" = { name = "assign_new_ruler", comment = "assign a new ruler to the player's country after the old one is gone (game-over path)" }
+"0x9918" = { name = "show_officer_event_msg", comment = "show an officer death/departure message + portrait" }
+"0x9952" = { name = "update_officer_state", comment = "process one officer's life-event by status nibble (+14): illness/capture/death/succession" }
+"0x9A37" = { name = "process_all_officers", comment = "age every officer (+8), roll death/retirement, then update_officer_state" }
+"0x9B04" = { name = "city_flag_64", comment = "true if a city's status field(3) has bit &64 set (flood-prone marker)" }
+"0x9B16" = { name = "city_flag_32", comment = "true if a city's status field(3) has bit &32 set (fire-prone marker)" }
+"0x9B28" = { name = "any_player_city_where", comment = "true if any player-owned city satisfies the predicate fn in the arg" }
+"0x9B5B" = { name = "check_allied_flood_scenario", comment = "scenario check: a player city allied via $6F00 &32 is flood-eligible" }
+"0x9BB3" = { name = "process_flood_damage", comment = "apply flood damage to flagged player cities (city flag &64)" }
+"0x9C81" = { name = "process_fire_damage", comment = "apply fire damage to flagged player cities (city flag &32, rate mem_6FE3)" }
+"0x9D4B" = { name = "officer_weapon_class", comment = "extract an officer's weapon-class bits (+5 masked by 12/192)" }
+"0x9D78" = { name = "process_disease_damage", comment = "apply disease damage to flagged player cities (city flag &64, rate mem_6FE1)" }
+"0x9E3E" = { name = "officer_city_in_country", comment = "true if an officer's city belongs to the given country's territory" }
+"0x9E7C" = { name = "ai_weight_diff", comment = "difference of two countries' AI relation weights ($6FD7)" }
+"0x9EC1" = { name = "city_region_id", comment = "map/region id of a city (from the $B6EB table)" }
+"0x9ED4" = { name = "show_country_scene", comment = "draw a country map + ruler portrait + framed message (scripted intro/diplomacy scene)" }
+"0x9FDA" = { name = "iter_country_officers_stub", comment = "boundary stub: begin iterating a country's officer list (continues in the $A000 partner)" }
