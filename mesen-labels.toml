@@ -1030,3 +1030,85 @@
 "0xB614" = { name = "draw_power_chart_page", comment = "draw one page of the country power-comparison chart (bars + relation)" }
 "0xB86C" = { name = "show_power_chart", comment = "country power-comparison chart browser (full-screen, paged)" }
 "0xB94C" = { name = "show_region_control", comment = "4-region overview: which country controls each region (call $BC7E)" }
+
+[prg.bank9]  # $A000 COMPUTER-PLAYER DIPLOMACY / foreign-policy AI + AI turn brain (dispatched via $BEC6).
+# ai_run_country_turn -> scripted event, ai_choose_diplomacy (relation-driven), ai_run_turn_actions,
+# ai_run_domestic_loop. The ai_diplo_* executors mirror bank 5's human commands, setting the same $6EF6
+# relation values (32=ally, 16=war, 0=peace, 19=incite) via ai_set_relation. Native pickers $BAD3/$BCB0.
+# Co-resident with bank 1; $9xxx helpers resolve there.
+"0xA003" = { name = "dispatch_command_ptr", comment = "call the current AI phase handler via jump table $BEC6[mem_76A0]" }
+"0xA013" = { name = "ai_rel_can_ally", comment = "true if arg1/arg2 are not allied, at peace (level 0), and relation_diff<5" }
+"0xA068" = { name = "ai_rel_want_peace", comment = "true if arg1/arg2 at war (==16) and relation_diff>75 (strongly want peace)" }
+"0xA09F" = { name = "ai_rel_at_war", comment = "true if the $6EF6 relation of arg1/arg2 == 16 (at war)" }
+"0xA0C2" = { name = "ai_rel_ally_not_joined", comment = "true if allied (&32) but the ally has not joined our war (sub_9785)" }
+"0xA0F6" = { name = "ai_rel_allied", comment = "true if arg1/arg2 relation has the allied bit (&32)" }
+"0xA119" = { name = "ai_rel_war_ally_absent", comment = "true if relation_diff<5 and at war (16) and ally not joined" }
+"0xA158" = { name = "ai_rel_can_warm", comment = "true if relation_diff<10, at peace, and ally not joined (can improve ties)" }
+"0xA194" = { name = "ai_rel_call_ally", comment = "true if relation_diff>25 and at war (16) and ally joined" }
+"0xA1D4" = { name = "ai_rel_ally_fights_target", comment = "true if arg2 is allied to us and at war with our target (mem_78A4)" }
+"0xA221" = { name = "ai_rel_recruit_ally", comment = "true if at peace, relation_diff>25, and ally joined (sub_9785)" }
+"0xA25E" = { name = "country_owns_city", comment = "true if any city in arg2's list belongs to country arg1" }
+"0xA282" = { name = "ai_score_income_need", comment = "priority from a city's income shortfall (100 - income/500)" }
+"0xA29F" = { name = "ai_score_food_need", comment = "priority from a city's food shortfall (100 - food/500)" }
+"0xA2BC" = { name = "ai_score_gold_reserve", comment = "gold-transfer amount scaled by the national treasury size" }
+"0xA2F2" = { name = "ai_update_city_policy", comment = "auto-set a city's tax/supply policy flags (+27) from develop vs population" }
+"0xA359" = { name = "ai_score_defense_need", comment = "priority from a city's wall/defense shortfall (+8 vs +26)" }
+"0xA388" = { name = "clear_ai_work_vars", comment = "zero the AI work amounts mem_78BA/78BC/78BE" }
+"0xA39A" = { name = "ai_want_tribute", comment = "AI want: demand gold/tribute (target $BAD3(0)); gates ai_diplo_tribute" }
+"0xA3E3" = { name = "ai_want_incite", comment = "AI want: incite a country to war (target $BAD3(1), mem_6FEA roll); gates ai_diplo_incite" }
+"0xA402" = { name = "ai_want_declare_war", comment = "AI want: declare war (target $BAD3(2)); gates ai_diplo_declare_war" }
+"0xA416" = { name = "ai_want_alliance", comment = "AI want: form an alliance (target $BAD3(3)); gates ai_diplo_form_alliance" }
+"0xA46B" = { name = "ai_want_peace", comment = "AI want: sue for peace (target $BAD3(6), not own country); gates ai_diplo_make_peace" }
+"0xA485" = { name = "ai_want_mediate", comment = "AI want: mediate two others (targets $BAD3(4)+$BAD3(5)); gates ai_diplo_mediate" }
+"0xA4AE" = { name = "ai_want_exchange_officers", comment = "AI want: exchange officers (target $BAD3(7), govt not full); gates ai_diplo_exchange" }
+"0xA4CD" = { name = "ai_want_recruit", comment = "AI want: recruit soldiers ($BCB0(3)); compute soldier budget mem_78BA" }
+"0xA51E" = { name = "ai_want_dispatch_officer", comment = "AI want: send an officer to an under-staffed city ($BCB0(6))" }
+"0xA574" = { name = "ai_want_appoint_governor", comment = "AI want: appoint a governor to a leaderless city (find via $B76A)" }
+"0xA5EC" = { name = "ai_want_reinforce_defense", comment = "AI want: raise a threatened city's defense ($BCB0(3))" }
+"0xA61D" = { name = "ai_want_collect_gold", comment = "AI want: collect a city's income to the treasury ($BCB0(0)) -> mem_78BC" }
+"0xA650" = { name = "ai_want_collect_food", comment = "AI want: collect a city's food to the treasury ($BCB0(1)) -> mem_78BE" }
+"0xA683" = { name = "ai_want_buy_materials", comment = "AI want: buy materials when gold-rich ($BCB0(2)) -> mem_78BA" }
+"0xA6F4" = { name = "ai_want_build_wall", comment = "AI want: build a city's wall/defense ($BCB0(5)) -> mem_78BA" }
+"0xA731" = { name = "ai_want_develop_city", comment = "AI want: develop a city stat ($BCB0(4))" }
+"0xA747" = { name = "ai_run_scripted_event", comment = "run a scripted AI event action selected by mem_7064 (1-7)" }
+"0xA8F2" = { name = "ai_choose_diplomacy", comment = "AI diplomacy decision tree: relation-driven choice of a diplomatic action" }
+"0xAA92" = { name = "ai_run_turn_actions", comment = "AI turn body: diplomacy + defense/attack planning (banks 7/10) + first domestic action" }
+"0xABA6" = { name = "ai_run_domestic_loop", comment = "AI domestic loop: repeatedly collect gold/food, recruit, develop, build for each city" }
+"0xAC1C" = { name = "ai_run_country_turn", comment = "top-level AI turn for one country: scripted event, diplomacy, actions, domestic loop" }
+"0xAC4A" = { name = "draw_accept_string", comment = "draw the 'accepted' string ($BEC8)" }
+"0xAC57" = { name = "draw_envoy_header", comment = "draw the diplomacy header: acting country name + envoy name/portrait" }
+"0xAC9A" = { name = "show_diplo_result", comment = "show a two-country diplomacy result message (mem_76A2 vs mem_78A4)" }
+"0xACC6" = { name = "draw_diplo_prompt", comment = "draw a one-country diplomacy prompt line" }
+"0xACE9" = { name = "ai_relation_target_ptr", comment = "pointer to a country's AI relation-weight slot ($6FD7 + index)" }
+"0xACFB" = { name = "roll_diplo_accept", comment = "acceptance roll: relation_diff + envoy diplomacy skill + gold offered" }
+"0xADD5" = { name = "ai_set_relation", comment = "write the symmetric $6EF6 relation of mem_76A2/mem_78A4 = arg" }
+"0xAE1A" = { name = "adjust_ai_weight", comment = "add to a country's AI relation weight ($6FD7), capped at 100" }
+"0xAE43" = { name = "ai_negotiate_give", comment = "AI give-goods loop: raise the offered amount, pick target city, until accepted" }
+"0xAF55" = { name = "ai_negotiate_take", comment = "AI request-goods loop: lower the demanded amount, pick target city, until accepted" }
+"0xB063" = { name = "propagate_ai_weights", comment = "set every country's AI weight toward mem_78A4 by war(&16)/ally(&32) status" }
+"0xB0FB" = { name = "propagate_weights_ally", comment = "propagate AI weights after an alliance (120/110/90/105)" }
+"0xB10D" = { name = "propagate_weights_peace", comment = "propagate AI weights after peace (110/105/95/100)" }
+"0xB11F" = { name = "propagate_weights_war", comment = "propagate AI weights after war/break (70/80/120/100)" }
+"0xB131" = { name = "drain_both_rulers", comment = "cut both countries' officers loyalty(+7)/morale(+13) by 5% (action cost)" }
+"0xB191" = { name = "drain_country_officers", comment = "cut mem_76A2's officers loyalty(+7)/morale(+13) after a break" }
+"0xB202" = { name = "ai_diplo_tribute", comment = "AI execute: demand gold/tribute; transfer gold mem_76A2<->mem_78A4, set relation 17" }
+"0xB324" = { name = "ai_diplo_incite", comment = "AI execute: incite a country to war; set relation 19, propagate weights" }
+"0xB41E" = { name = "ai_diplo_form_alliance", comment = "AI execute: form alliance; set relation 32 (allied), drain both rulers" }
+"0xB4A0" = { name = "ai_diplo_declare_war", comment = "AI execute: declare war; set relation 16 (at war), propagate weights" }
+"0xB56C" = { name = "ai_diplo_make_peace", comment = "AI execute: make peace; set relation 0, adjust weights" }
+"0xB5F1" = { name = "ai_diplo_mediate", comment = "AI execute: mediate peace between mem_78A4 and mem_78A6; set relation 0" }
+"0xB6DF" = { name = "ai_diplo_exchange_officers", comment = "AI execute: officer exchange (auto_exchange_officers) + result message" }
+"0xB745" = { name = "ai_diplo_give_goods", comment = "AI execute: give food/materials (arg selects) mem_76A2 -> mem_78A4" }
+"0xB800" = { name = "ai_diplo_request_goods", comment = "AI execute: request food/materials (arg selects) mem_78A4 -> mem_76A2" }
+"0xB8BB" = { name = "ai_try_recruit_officer", comment = "AI execute: try to recruit officer mem_78C0 into mem_76A2 (loyalty roll)" }
+"0xB945" = { name = "ai_set_recruit_target", comment = "store the recruit soldier target into the national record (+16)" }
+"0xB95C" = { name = "mark_city_acted", comment = "flag the picked city as having acted this turn ($7031 + city)" }
+"0xB973" = { name = "ai_apply_guns", comment = "distribute guns: national +14 and city +24 (cap 999) from mem_78BA" }
+"0xB998" = { name = "ai_spend_on_defense", comment = "spend gold: national +8 and city wall/defense +26 from mem_78BA" }
+"0xB9C0" = { name = "ai_apply_officer_flags", comment = "set the moved officer's city policy bits (+27) if it can command" }
+"0xB9FA" = { name = "ai_move_officer_to_govt", comment = "reassign officer mem_78C0 into the government reserve" }
+"0xBA34" = { name = "ai_move_officer_to_city", comment = "reassign officer mem_78C0 into the picked city mem_7CD1" }
+"0xBA6E" = { name = "ai_apply_city_resources", comment = "write gold/food/materials (mem_78BA/BC/BE) into city +14/+16/+18" }
+"0xBACA" = { name = "ai_mark_only", comment = "mark the city acted with no resource change (mark_city_acted)" }
+"0xBAD3" = { name = "ai_pick_diplo_target", comment = "NATIVE: pick/return the target country (mem_78A4) for AI diplomacy action index arg" }
+"0xBCB0" = { name = "ai_pick_action_city", comment = "NATIVE: pick/return a city for AI domestic action index arg (from mem_76A2's cities)" }
