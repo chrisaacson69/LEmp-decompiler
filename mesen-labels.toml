@@ -847,3 +847,61 @@
 "0xB7C5" = { name = "cmd_personnel_menu", comment = "PERSONNEL submenu: Appoint / Recall / Dispatch" }
 "0xB820" = { name = "draw_country_grid", comment = "draw the diplomacy country-selection grid (flags + names)" }
 "0xB8A5" = { name = "pick_diplomacy_target", comment = "pick a target country for a diplomacy action (alliance/trade/war), with eligibility checks" }
+
+[prg.bank7]  # $A000 STRATEGIC (map-level) BATTLE / WAR orchestration (dispatched via $BED4).
+# Declare war -> build armies -> march animation -> tactical rounds (invokes bank 10) -> resolve:
+# capture/flee/recruit officers, plunder resources, conquer city/country. Co-resident with bank 1.
+"0xA003" = { name = "dispatch_battle_command", comment = "call the current battle sub-command via jump table $BED4[mem_76A0]" }
+"0xA013" = { name = "capture_and_reserve_officer", comment = "a captured officer: show msg, move to the captor country's reserve" }
+"0xA06D" = { name = "reset_defeated_officer", comment = "clear a defeated officer's soldiers, return to reserve" }
+"0xA095" = { name = "calc_army_strength", comment = "sum a unit list's soldiers, weighted by morale/training/type" }
+"0xA11A" = { name = "draw_commander_info", comment = "draw a commander panel: city, status icon, name, portrait" }
+"0xA1CA" = { name = "draw_battle_screen", comment = "the strategic battle screen: both commanders + army stats" }
+"0xA266" = { name = "confirm_attack_screen", comment = "show the attack preview (both armies) and confirm/cancel" }
+"0xA354" = { name = "roll_strategic_outcome", comment = "probabilistic auto-resolve of a strategic battle (strength ratio)" }
+"0xA3DE" = { name = "resolve_strategic_battle", comment = "resolve a battle: interactive screen or auto-roll, return result" }
+"0xA414" = { name = "build_defender_army", comment = "convert the defender's officers into battle units ($7BA2)" }
+"0xA454" = { name = "load_march_palettes", comment = "load army-march sprite palettes from bank 250" }
+"0xA469" = { name = "commit_march_sprite", comment = "set_chr_bank_alt for a march sprite slot" }
+"0xA49B" = { name = "place_march_sprite", comment = "position an army-march sprite at a map pixel" }
+"0xA4E6" = { name = "animate_army_march", comment = "animate the army marching from the attacker city to the defender city" }
+"0xA5B5" = { name = "get_battle_winner", comment = "which side's commander is still able to command (winner)" }
+"0xA5EE" = { name = "get_battle_result_music", comment = "victory/defeat music id from the battle winner" }
+"0xA61B" = { name = "show_war_result", comment = "redraw map + show the war/battle result (country, officers, message)" }
+"0xA78F" = { name = "setup_and_run_battle", comment = "top-level strategic battle: build armies, march, run tactical rounds, resolve" }
+"0xA94D" = { name = "build_attacker_army", comment = "pick the attacker's officers within the soldier budget ($78D6) -> battle units" }
+"0xA9D8" = { name = "confirm_invade", comment = "prompt to invade a target city (attacker vs defender names)" }
+"0xAA39" = { name = "roll_ally_join", comment = "AI: roll whether an allied/neutral country joins the war (relation-weighted)" }
+"0xAACB" = { name = "negotiate_before_battle", comment = "diplomacy attempt (surrender demand) before fighting; adjust relations" }
+"0xAB94" = { name = "can_reinforce_from", comment = "true if a city can send reinforcements (same side, at war, has room)" }
+"0xAC28" = { name = "officer_can_act", comment = "officer is available and not stuck at capital in scenario 3" }
+"0xAC52" = { name = "find_reinforcement_city", comment = "find the best friendly city to draw reinforcements from" }
+"0xAD15" = { name = "process_reinforcements", comment = "pull reinforcements: negotiate + build the reinforcing army" }
+"0xAD4B" = { name = "show_march_msg", comment = "draw a march/target status message (string 248+57)" }
+"0xAD73" = { name = "choose_attack_target", comment = "map cursor to pick the target city to attack (eligibility checks)" }
+"0xAF50" = { name = "disband_group_officers", comment = "return a beaten battle group's officers (flee/capture/recruit or reset)" }
+"0xB005" = { name = "plunder_resources", comment = "transfer the defeated city's gold(+14)/food to the victor" }
+"0xB06B" = { name = "roll_gate_defense", comment = "roll for a fortified-gate defensive bonus" }
+"0xB0C9" = { name = "apply_conquest_penalty", comment = "cut a conquered city's food/materials/soldiers, set occupied flags" }
+"0xB153" = { name = "disband_side", comment = "after battle: disband a side's units (casualties, flee, capture)" }
+"0xB203" = { name = "run_attacker_turn", comment = "the attacker's strategic turn: choose target, march, resolve" }
+"0xB28F" = { name = "scan_reinforce_candidates", comment = "scan a city list for the strongest reinforcement source" }
+"0xB323" = { name = "find_reinforcement_source", comment = "find a city to reinforce a battle side from ($7BA2 group)" }
+"0xB37E" = { name = "find_next_target", comment = "find the next enemy city/officer to attack for a side" }
+"0xB3E5" = { name = "find_weakest_list_officer", comment = "find the officer with the fewest peers in a list (for placement)" }
+"0xB43D" = { name = "find_flee_destination", comment = "find where a routed officer flees (adjacent friendly country city)" }
+"0xB477" = { name = "rout_officers_to_city", comment = "move a beaten battle group's officers into a city (or flee/capture)" }
+"0xB609" = { name = "insert_officer_bump", comment = "insert an officer into a full city list, bumping one to the govt" }
+"0xB692" = { name = "calc_side_strength", comment = "total combat strength of a battle side (soldiers + officer strength)" }
+"0xB6F0" = { name = "calc_casualties", comment = "casualties from a strength ratio (squared-odds + reserve factor)" }
+"0xB743" = { name = "try_recruit_captive", comment = "chance to recruit a defeated enemy officer into the victor's country" }
+"0xB7BA" = { name = "try_officer_defect", comment = "low-morale defeated officer may defect/surrender to the victor" }
+"0xB877" = { name = "resolve_unit_combat", comment = "resolve one unit's combat round: morale, casualties, rout/capture" }
+"0xB923" = { name = "resolve_side_combat", comment = "resolve every unit of a battle side; detect a side wiped out" }
+"0xB9D5" = { name = "run_battle_rounds", comment = "the strategic battle rounds loop until one side breaks" }
+"0xBABB" = { name = "init_battle_morale", comment = "init both sides' base morale ($78E6) for a battle" }
+"0xBB41" = { name = "return_officers_to_city", comment = "return the transport-group officers to the defender city" }
+"0xBB83" = { name = "finalize_captured_city", comment = "set a captured city's soldiers(+16)/supply(+26)/defense/develop stats" }
+"0xBCB1" = { name = "country_has_city_flag", comment = "true if any of a country's cities has flag bit arg" }
+"0xBCD9" = { name = "apply_battle_aftermath", comment = "post-battle: finalize city, adjust $6EF6/$6FD7 relations, conquer if country fell" }
+"0xBE64" = { name = "process_battle_result", comment = "post-battle: disband sides, transfer the captured city, redraw markers" }
