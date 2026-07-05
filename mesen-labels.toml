@@ -1172,3 +1172,30 @@
 "0xBBD7" = { name = "clear_active_flags", comment = "clear the active (bit 128) flag on every unit of a side" }
 "0xBBF3" = { name = "ai_run_attacker_side", comment = "run the AI for the attacker side (side 0): deploy then advance" }
 "0xBC35" = { name = "ai_run_defender_side", comment = "run the AI for the defender side (side 1): deploy then defend" }
+
+[prg.bank12]  # $A000 TACTICAL battle SETUP + special combat maneuvers (co-resident w/ banks 10/11).
+# setup_battle loads the terrain grid, deployment zones, gates and weather, then hands off to the
+# bank-11 AI deploy controllers. Also the charge / gate-breach / wall-bombard combat animations.
+# Battle-domain only; no city-schema changes. Uses bank-10's $8000 unit library + bank 11.
+"0xA003" = { name = "battle_screen_dispatch", comment = "battle-screen action dispatch via jump table $BEDA[mem_76A0] (target of dispatch_battle_screen)" }
+"0xA013" = { name = "rle_fill_zone", comment = "expand one run-length terrain/zone segment into the $7880 zone map" }
+"0xA05D" = { name = "build_deploy_map", comment = "build the battlefield deployment-zone map ($7880) from the city's battle data (bank 245)" }
+"0xA15C" = { name = "load_terrain_grid", comment = "load the 12x13 battlefield terrain grid ($7748) from packed nibbles (bank 245)" }
+"0xA1CA" = { name = "load_battlefield_data", comment = "load both the terrain grid and the deployment-zone map" }
+"0xA1D6" = { name = "render_battlefield_bg", comment = "render the battlefield background: each terrain cell -> its metatile blit" }
+"0xA32E" = { name = "init_gates", comment = "number the gate cells (terrain type 6) and reset their gate-HP slots ($7832)" }
+"0xA392" = { name = "apply_battle_weather", comment = "apply weather tile swaps (11->12 when snowing) and init objective timers ($77E4)" }
+"0xA40C" = { name = "check_sides_present", comment = "determine which sides have a present commander (mem_793C); pick the intro music" }
+"0xA484" = { name = "announce_reinforcement", comment = "show the 'reinforcements arrive' message for the side-2 relief unit ($7BBC)" }
+"0xA4D4" = { name = "reset_battle_state", comment = "clear the battle work arrays ($791C/$7812/tile-alloc) and scroll/cursor vars" }
+"0xA533" = { name = "setup_battle", comment = "THE battle setup entry: reset, load commanders/cities, terrain, gates, weather, deploy AI sides" }
+"0xA654" = { name = "spawn_reinforcements", comment = "spawn the side-2 relief units onto the field (chance- and turn-gated)" }
+"0xA719" = { name = "set_side_action_points", comment = "set each commander's per-battle action points (+8) from the side's soldier totals" }
+"0xA769" = { name = "advance_weather", comment = "advance/roll the battle weather state (mem_780B: clear/rain/snow)" }
+"0xA7E5" = { name = "battle_round_upkeep", comment = "per-round upkeep: advance weather, recompute action points, spawn reinforcements" }
+"0xA7F7" = { name = "unit_can_command", comment = "true if a side's lead unit officer is able to command" }
+"0xA814" = { name = "assault_gate", comment = "attempt to breach a gate cell: strength roll -> open it (terrain 9) and engage the defender" }
+"0xA901" = { name = "animate_engage_move", comment = "animate the charging/engaging sprites moving between two units" }
+"0xAB86" = { name = "resolve_charge", comment = "resolve a charge attack: repeated melee rounds until a side breaks; capture/rout" }
+"0xAC4D" = { name = "bombard_wall", comment = "artillery bombard of a wall cell: strength roll -> breach marker (terrain 10/26) + animation" }
+"0xAD7D" = { name = "animate_repel", comment = "animate a unit being knocked back / repelled after losing an engagement" }
