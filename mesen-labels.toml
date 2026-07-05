@@ -483,6 +483,8 @@
 [prg.bank0]  # L1 universal library ($A000-resident): display + game-state, called by all 16 banks.
 # Graphics (faces/icons/map/HUD) + record-list ops + the $6EF6 country diplomacy matrix.
 # Some diplomacy-flag predicates are provisional (bit meaning pending the diplomacy command-walk).
+# --- native 6502 leaf helpers (seed-disasm-confirmed; NOT $E2E3 bytecode) ---
+"0xBC7E" = { name = "region_dominant_country", comment = "NATIVE: return the country controlling map-region arg (scans the region city table @ $DF58)" }
 "0xA003" = { name = "draw_face_at_3_10", comment = "draw_face(3,10,arg) -- portrait at fixed slot" }
 "0xA010" = { name = "blit_icon_9x7", comment = "blit a 9x7 metasprite indexed by arg3 (<9) from table $BB1E/$BD16 (bank 243)" }
 "0xA03A" = { name = "blit_icon_7x5", comment = "blit a 7x5 metasprite indexed by arg3 (<18), gated on flag $6FEC&2" }
@@ -548,6 +550,10 @@
 [prg.bank1]  # $8000 co-resident library (partner of banks 2-9): turn engine + command dispatch + screen setup.
 # NOTE: bank 1 also has NATIVE helpers in its $9000 region (sub_9D9B/$92E8/$90A4/...) called by this
 # bytecode -- not yet named (paged-bank native residue, separate from the fixed-region floor).
+# --- native 6502 leaf helpers (seed-disasm-confirmed; NOT $E2E3 bytecode) ---
+"0x9D73" = { name = "scan_cities_field4", comment = "NATIVE: scan the $7176 city array (46 entries, stride 28) testing field +4" }
+"0x9D9B" = { name = "clear_all_officer_bit7", comment = "NATIVE: clear bit 7 of every officer's +14 status field ($6005 array, 255 x 15 bytes)" }
+"0x9DBE" = { name = "foreach_list_node", comment = "NATIVE: walk a record's linked list (+2 = next ptr), applying helpers $9EAD/$9E74 per node" }
 "0x8003" = { name = "dispatch_command", comment = "read command byte from table $9EBE, split nibbles, call_banked_routine(2,227+n) to the command's bank" }
 "0x8039" = { name = "run_officer_command", comment = "per-officer command loop: music, markers, dispatch_command, status" }
 "0x80C0" = { name = "run_city_command", comment = "city command loop: draw city, dispatch, status until done" }
@@ -686,6 +692,12 @@
 # Hex grid (13-wide: terrain $7748, occupancy $76A2, move-cost $77E4), unit movement/melee/ranged combat,
 # morale/rout/capture, the field AI, battle-map windowing + combat animations.
 # NOTE: bank 10 also has native helpers in its $9000 region (sub_9BA9/$9D97/$9DA9/... -- residue, not yet named).
+# --- native 6502 leaf helpers (seed-disasm-confirmed; NOT $E2E3 bytecode) ---
+"0x9C6E" = { name = "step_in_direction", comment = "NATIVE: set $7746/$7747 to the cell one step in dir from (col,row); return its terrain (255 if off-map)" }
+"0x9D97" = { name = "get_unit_cell", comment = "NATIVE: write a battlefield unit's (col,row) to two out-pointers" }
+"0x9DA9" = { name = "place_cell_sprite", comment = "NATIVE: compute the sprite tile position ($7871-73) for a battlefield cell" }
+"0x9DD9" = { name = "set_cell_sprite_pair", comment = "NATIVE: set the primary+secondary sprite positions ($786C-6F) for a cell (via place_cell_sprite)" }
+"0x9E4B" = { name = "unit_at_cell", comment = "NATIVE: return the unit record occupying battlefield cell (col,row), or 0" }
 "0x8003" = { name = "dispatch_battle_screen", comment = "call_banked_routine to a battle sub-screen via table $9ECC" }
 "0x8025" = { name = "run_battle_setup", comment = "battle setup: dispatch pre-battle screens + deploy" }
 "0x8049" = { name = "sum_unit_soldiers", comment = "sum soldiers (field+9) over a unit linked-list" }
@@ -1110,8 +1122,8 @@
 "0xBA34" = { name = "ai_move_officer_to_city", comment = "reassign officer mem_78C0 into the picked city mem_7CD1" }
 "0xBA6E" = { name = "ai_apply_city_resources", comment = "write gold/food/materials (mem_78BA/BC/BE) into city +14/+16/+18" }
 "0xBACA" = { name = "ai_mark_only", comment = "mark the city acted with no resource change (mark_city_acted)" }
-"0xBAD3" = { name = "ai_pick_diplo_target", comment = "NATIVE: pick/return the target country (mem_78A4) for AI diplomacy action index arg" }
-"0xBCB0" = { name = "ai_pick_action_city", comment = "NATIVE: pick/return a city for AI domestic action index arg (from mem_76A2's cities)" }
+"0xBAD3" = { name = "ai_pick_diplo_target", comment = "E2E3-bytecode (2nd vm-entry, decode pending): pick/return the target country (mem_78A4) for AI diplomacy action index arg" }
+"0xBCB0" = { name = "ai_pick_action_city", comment = "E2E3-bytecode (2nd vm-entry, decode pending): pick/return a city for AI domestic action index arg (from mem_76A2's cities)" }
 
 [prg.bank11]  # $A000 TACTICAL (field) BATTLE turn engine (co-resident with bank 10's $8000 library).
 # run_battle_loop drives up to 31 rounds; each round a side runs run_player_turn or run_ai_turn:
@@ -1247,11 +1259,11 @@
 "0xB035" = { name = "try_step_cost", comment = "attempt one movement step onto a cell, deducting the move-point cost" }
 "0xB09C" = { name = "ai_move_unit", comment = "move a unit toward a target cell: pathing, ambush handling, engage-on-arrival" }
 "0xB14C" = { name = "ai_execute_move", comment = "execute the AI unit's move to ($7746,$7747): build the path then walk it" }
-"0xB676" = { name = "ai_reset_unit_scan", comment = "NATIVE: reset the per-turn AI unit-scan/scoring state" }
-"0xB84D" = { name = "adjacent_terrain_is", comment = "NATIVE: true if a cell adjacent to (col,row) has the given terrain type (arg)" }
-"0xB8B5" = { name = "ai_pick_reserve_unit", comment = "NATIVE: pick a reserve unit from a side header to deploy as reinforcement" }
-"0xB9A0" = { name = "ai_scan_best_cell", comment = "NATIVE: scan battlefield cells, score each via the fn arg, leave the best score in mem_7B2A" }
-"0xBAF7" = { name = "ai_pick_best_unit", comment = "NATIVE: scan the active unit list, score each via the fn address in the arg, return the best" }
+"0xB676" = { name = "ai_reset_unit_scan", comment = "E2E3-bytecode (2nd vm-entry, decode pending): reset the per-turn AI unit-scan/scoring state" }
+"0xB84D" = { name = "adjacent_terrain_is", comment = "E2E3-bytecode (2nd vm-entry, decode pending): true if a cell adjacent to (col,row) has the given terrain type (arg)" }
+"0xB8B5" = { name = "ai_pick_reserve_unit", comment = "E2E3-bytecode (2nd vm-entry, decode pending): pick a reserve unit from a side header to deploy as reinforcement" }
+"0xB9A0" = { name = "ai_scan_best_cell", comment = "E2E3-bytecode (2nd vm-entry, decode pending): scan battlefield cells, score each via the fn arg, leave the best score in mem_7B2A" }
+"0xBAF7" = { name = "ai_pick_best_unit", comment = "E2E3-bytecode (2nd vm-entry, decode pending): scan the active unit list, score each via the fn address in the arg, return the best" }
 
 [prg.bank17]  # $8000 TURN-ADVANCE / monthly-upkeep + random-events engine ($8000 library, banks_at_8000).
 # advance_turn rolls the calendar (month $6FE8/year $6FE6/season $6FE9); run_monthly_updates dispatches
@@ -1318,3 +1330,50 @@
 "0x9EC1" = { name = "city_region_id", comment = "map/region id of a city (from the $B6EB table)" }
 "0x9ED4" = { name = "show_country_scene", comment = "draw a country map + ruler portrait + framed message (scripted intro/diplomacy scene)" }
 "0x9FDA" = { name = "iter_country_officers_stub", comment = "boundary stub: begin iterating a country's officer list (continues in the $A000 partner)" }
+
+[prg.bank13]  # $A000 PLAYER battle-order handlers + post-battle aftermath (tactical bank, co-resident
+# w/ bank 10). Dispatched from bank 11's unit-order menu: move/charge/artillery/transfer/rally/gate-
+# assault/retreat/march-out. Plus the battle resolution: apply_battle_aftermath, disband_side_units,
+# dissolve_country, end_battle. RECOVERED 2026-07-04 -- was wrongly excluded (header = JSR $E2E3).
+"0xA194" = { name = "trace_step_to", comment = "return the direction step (1-6) from a unit's cell toward a target cell, or -1" }
+"0xA218" = { name = "pick_move_dest", comment = "interactive: pick a reachable destination cell within the unit's move range" }
+"0xA315" = { name = "draw_move_points", comment = "draw the unit's remaining move points (mem_7B2F)" }
+"0xA330" = { name = "confirm_and_attack", comment = "confirm attacking an adjacent enemy, then perform the attack" }
+"0xA39C" = { name = "apply_move_cost", comment = "apply the terrain move-cost of stepping onto a cell; show blocked-terrain message" }
+"0xA489" = { name = "can_reach_cell", comment = "true if the unit can path to a cell within its remaining move points" }
+"0xA4DB" = { name = "msg_cannot_move", comment = "draw the 'can't move there' message" }
+"0xA4F0" = { name = "cmd_move", comment = "MOVE command: spend move points, cursor-select, walk the unit step-by-step" }
+"0xA728" = { name = "cmd_move_attack", comment = "MOVE+ATTACK command: move then strike an adjacent enemy" }
+"0xA8D6" = { name = "run_move_command", comment = "dispatch cmd_move vs cmd_move_attack by unit type (artillery bit)" }
+"0xA8ED" = { name = "cmd_artillery_move", comment = "ARTILLERY move: pick a reachable cell and reposition/fire (sub_8944)" }
+"0xA916" = { name = "cmd_charge", comment = "CHARGE command: pick an adjacent target and resolve the charge (cavalry)" }
+"0xA96C" = { name = "cmd_artillery_target", comment = "ARTILLERY target: pick a target from the range list and fire (execute_charge)" }
+"0xAA95" = { name = "cmd_area_fire", comment = "fire every eligible artillery unit of the side at a target" }
+"0xAB53" = { name = "cmd_rally", comment = "RALLY command: confirm, raise the officer's own morale (+13)" }
+"0xAB94" = { name = "list_routed_friends", comment = "collect friendly units flagged routed (&32) into a buffer" }
+"0xABBE" = { name = "cmd_absorb_routed", comment = "pick a routed friendly unit and absorb/merge it (sub_89E3)" }
+"0xACA7" = { name = "cmd_entrench", comment = "ENTRENCH command: confirm, dig in (sub_8AFD)" }
+"0xACDC" = { name = "list_adjacent_infantry", comment = "list adjacent friendly infantry that can receive transferred soldiers" }
+"0xAD1E" = { name = "cmd_transfer_soldiers", comment = "transfer soldiers to an adjacent friendly unit (input amount, sub_8B53)" }
+"0xAE5C" = { name = "count_list_units", comment = "count the units in a linked unit list" }
+"0xAE7C" = { name = "cmd_field_retreat", comment = "retreat the unit off the battlefield via a home city (deploy_side)" }
+"0xAEF2" = { name = "cmd_pass_gate", comment = "move through an adjacent open gate (terrain 9) / bombard the wall" }
+"0xB030" = { name = "cmd_assault_gate", comment = "assault an adjacent closed gate (terrain 10) -> assault_gate" }
+"0xB12C" = { name = "cmd_withdraw", comment = "WITHDRAW command: confirm, pull the unit back (animate_repel)" }
+"0xB17B" = { name = "city_targetable", comment = "true if a city is a valid march/retreat target for the current side" }
+"0xB1DF" = { name = "pick_supply_option", comment = "menu to pick a supply/enter option for the battle city" }
+"0xB286" = { name = "list_target_cities", comment = "list and draw the cities eligible as a march/retreat destination" }
+"0xB2F0" = { name = "cmd_march_out", comment = "march a unit out of the battle to a chosen friendly city (leaves the field)" }
+"0xB3B4" = { name = "return_officer_to_city", comment = "reset an officer's city index (+3), clear its orders and status" }
+"0xB3D8" = { name = "find_strongest_officer", comment = "find the highest-rank officer in a country's cities (succession)" }
+"0xB428" = { name = "find_successor", comment = "find a successor officer for a fallen city commander" }
+"0xB460" = { name = "place_captured_officer", comment = "assign a captured officer to the victor's city or government reserve" }
+"0xB4E6" = { name = "detach_side_list", comment = "splice out a battle side's unit list (return the detached head)" }
+"0xB50A" = { name = "return_side1_officers", comment = "return side-1's officers to their home cities" }
+"0xB551" = { name = "refresh_captured_markers", comment = "redraw the map markers for the captured city" }
+"0xB576" = { name = "apply_battle_aftermath", comment = "apply the battle result to the city: soldiers/supply(+16)/wall(+26)/morale/loyalty" }
+"0xB6B0" = { name = "dissolve_country", comment = "a fallen country: release all its officers, clear its $6EF6 relations" }
+"0xB7C1" = { name = "any_player_city_flag", comment = "true if any player city has the given status flag (field 3)" }
+"0xB7E9" = { name = "finalize_conquest", comment = "post-battle: aftermath + AI relation-weight ($6FD7) adjustments + conquer if a country fell" }
+"0xB90C" = { name = "disband_side_units", comment = "disband a battle side's units: casualties/rout, return officers to cities/reserve" }
+"0xBB25" = { name = "end_battle", comment = "top-level post-battle cleanup: disband both sides, transfer the city, restore map/scene" }
