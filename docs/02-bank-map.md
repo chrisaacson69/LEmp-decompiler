@@ -36,10 +36,19 @@ created: 2026-07-02
 | `syscall_set_prg_bank(win, bank)` | map | 32 | arg 2 |
 | `far_call(routine, bank)` / `call_module_*` | code (OS) | 28 | arg 2 |
 
-**No dedicated far-call VM opcode** — cross-bank always goes through these trampolines. **`far_call`/
-`set_prg` are the ONLY way bank 31's deps appear** — a `call_in_bank_dcd1`-only scan would miss bank 31
-(and the far-call-loaded banks 18, 22) entirely. **No direct co-resident `CALL_abs` exists** (own-call
-analysis found 0 non-self cross-window calls) → **no `coresident_N` config needed** (unlike NA2).
+**No dedicated far-call VM opcode** — cross-bank goes through trampolines OR direct co-resident calls.
+**`far_call`/`set_prg` are the ONLY way bank 31's deps appear** — a `call_in_bank_dcd1`-only scan would
+miss bank 31 (and the far-call-loaded banks 18, 22) entirely.
+
+⚠ **A 5th method: direct co-resident `CALL_abs` into the `$8000` window** (NOT trampolined). An
+`$A000`-resident bank calls its co-resident `$8000` **library** partner directly by address. The
+disassembler mis-tags these paged-window targets as `{native}` (it can't see the real co-resident
+bank), which is why the first pass missed them (the self-match residence test also masked them). **Two
+shared `$8000` libraries:**
+- **bank 1** ← called directly by banks **2, 3, 4, 5, 6, 7, 8, 9** (the main app cluster)
+- **bank 10** ← called directly by banks **11, 12, 14**
+
+So `coresident_N` IS needed (corrects an earlier note): `coresident_2..9 = [1]`, `coresident_11/12/14 = [10]`.
 
 ## Dependency graph (source → target(method))
 
@@ -73,11 +82,12 @@ analysis found 0 non-self cross-window calls) → **no `coresident_N` config nee
 ## Leaves-first walk order (by code-call dependency; within a layer, fewest subs first)
 
 - **L0** = fixed floor, banks 30/31 — **DONE** (native floor + bytecode-OS, 0 unnamed).
-- **L1** = **bank 0** (61 subs) — **DONE** (display + game-state library; every one of the 16 callers now
-  resolves bank-0 names). Its 42-caller reach makes it the highest-leverage bank.
-- **L2** = banks that call only bank 0 — 15(18), 16(19), 2(26), 11(55), 17(60), 1(61), 10(61).
-  *(Bank 2 is the 2nd-most-called after 0, so it unblocks the most L3 despite not being smallest.)*
-- **L3** = 12(22), 8(32), 3(43), 4(49), 7(54) — add bank 2 or 11.
+- **L1** = **bank 0** (61 subs) — **DONE** ($A000 display + game-state library; all 16 callers resolve it).
+- **L2 = the two `$8000` co-resident libraries** (revised after finding the co-resident calls):
+  **bank 1** (61 subs — partner of banks 2-9) and **bank 10** (61 subs — partner of 11/12/14). These
+  must precede their clusters, so they come *before* the small banks despite their size.
+- **L3** = the app-logic banks (need bank 0 + their $8000 partner): 15(18)†, 16(19)†, 2(26), 8(32),
+  3(43), 4(49), 7(54), 12(22), 11(55), 17(60)†. († = the standalone $8000 banks 15/16/17, no partner.)
 - **L4** = 5(34), 14(43). **L5** = 6(45), 9(74) — deepest orchestrators.
 
 The record-field schema stays generic (`field_N`) until a command handler in these banks is caught

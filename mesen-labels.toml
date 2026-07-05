@@ -544,3 +544,68 @@
 "0xB0DC" = { name = "draw_officer_row", comment = "draw one officer roster row: name, 4 stats, rank, soldiers (general_name + format)" }
 "0xB28F" = { name = "draw_officer_page", comment = "draw a page of officer rows from the $7CF4 list ($7D14 = selection flags)" }
 "0xB2EE" = { name = "officer_select_menu", comment = "paginated officer multi-select menu (list + input + select/limit checks)" }
+
+[prg.bank1]  # $8000 co-resident library (partner of banks 2-9): turn engine + command dispatch + screen setup.
+# NOTE: bank 1 also has NATIVE helpers in its $9000 region (sub_9D9B/$92E8/$90A4/...) called by this
+# bytecode -- not yet named (paged-bank native residue, separate from the fixed-region floor).
+"0x8003" = { name = "dispatch_command", comment = "read command byte from table $9EBE, split nibbles, call_banked_routine(2,227+n) to the command's bank" }
+"0x8039" = { name = "run_officer_command", comment = "per-officer command loop: music, markers, dispatch_command, status" }
+"0x80C0" = { name = "run_city_command", comment = "city command loop: draw city, dispatch, status until done" }
+"0x8147" = { name = "phase_government", comment = "national/government phase: iterate the 15 countries, run each" }
+"0x827E" = { name = "phase_cities", comment = "city command phase: iterate the 46 cities, run each city's officers" }
+"0x83EE" = { name = "run_turn", comment = "one full turn: phase_government + phase_cities" }
+"0x8402" = { name = "dispatch_map_render", comment = "call_banked_routine(2,229) to render the map (mode in $7896)" }
+"0x8421" = { name = "show_command_name", comment = "load a command name string (bank 248) and format it" }
+"0x845E" = { name = "show_menu_prompt", comment = "load a menu string (bank 249), draw as status prompt" }
+"0x84A4" = { name = "draw_govt_header", comment = "government menu header (turn/consul/scenario info) from bank 249" }
+"0x8506" = { name = "draw_country_banner", comment = "blit the country banner panel for a country ptr" }
+"0x8574" = { name = "render_map_mode0", comment = "set $7894, $7896=0, dispatch_map_render" }
+"0x8585" = { name = "render_map_mode1", comment = "set $7894/$7898, $7896=1, dispatch_map_render" }
+"0x859C" = { name = "setup_city_screen", comment = "set up the city-command screen (frame, hud, banner)" }
+"0x8604" = { name = "setup_city_and_render", comment = "setup_city_screen + render_map_mode1" }
+"0x8618" = { name = "render_map_mode2", comment = "set $789A/$7898, $7896=2, dispatch_map_render" }
+"0x862F" = { name = "render_map_mode3", comment = "set $789A, $7896=3, dispatch_map_render" }
+"0x8640" = { name = "setup_govt_screen", comment = "set up the government-command screen (frame, hud)" }
+"0x86A2" = { name = "setup_govt_and_render", comment = "setup_govt_screen + render_map_mode3" }
+"0x86B6" = { name = "draw_supply_icon", comment = "blit_icon_7x5(22,20,arg) -- supply/status icon" }
+"0x86CC" = { name = "enter_fullscreen_view", comment = "enter a full-screen sub-view: load scene, upload tiles, frame" }
+"0x872A" = { name = "exit_fullscreen_view", comment = "tear down the full-screen sub-view, restore map" }
+"0x8771" = { name = "first_selected_officer", comment = "return first officer in $7CF4 list with selection flag $7D14==1" }
+"0x879C" = { name = "draw_deploy_prompt", comment = "status prompt + a deploy string (bank 248 + arg+35)" }
+"0x87B4" = { name = "select_deploy_officers", comment = "officer detail + officer_select_menu for deployment, return first picked" }
+"0x87F4" = { name = "city_target_cursor", comment = "city-target cursor loop (D-pad picks a city, A confirms)" }
+"0x887E" = { name = "has_supply_city", comment = "true if any city in the country list is a supply base ($7031 flag)" }
+"0x88A4" = { name = "city_command_menu", comment = "grid_menu_select for the city command menu (returns command index)" }
+"0x890E" = { name = "toggle_officer_view", comment = "toggle the officer/map metasprite view" }
+"0x8952" = { name = "country_target_cursor", comment = "country-target cursor loop" }
+"0x89CC" = { name = "govt_command_menu", comment = "grid_menu_select for the government command menu" }
+"0x8A1A" = { name = "show_done_msg", comment = "draw the $9F26 done/OK message" }
+"0x8A2C" = { name = "show_command_msg", comment = "draw an indexed command message (bank 248 + arg+46)" }
+"0x8A49" = { name = "show_relation_msg", comment = "draw a diplomacy-relation message based on $6EF6 flag bits" }
+"0x8A8A" = { name = "officer_to_battle_unit", comment = "build a battle-unit record from an officer (flags, city, stats)" }
+"0x8AE1" = { name = "officer_to_transport_unit", comment = "build a transport-unit record from an officer" }
+"0x8B12" = { name = "build_officer_roster", comment = "build the sortable officer roster ($7BA2/$7BC9) for a group" }
+"0x8B8D" = { name = "play_city_theme", comment = "play the music theme for a city's region ($9F71 table)" }
+"0x8BA5" = { name = "city_region", comment = "map a city record -> its region/theme index ($9F9F table)" }
+"0x8BB8" = { name = "redraw_map", comment = "redraw the map: draw_country_map + city markers + hud + banner" }
+"0x8BEE" = { name = "load_string_from_bank", comment = "map bank arg1 (244-249), strcpy a string[arg2] into $76A4, restore bank" }
+"0x8C4A" = { name = "get_string_247", comment = "load_string_from_bank(247, arg) -> $76A4" }
+"0x8C5B" = { name = "get_string_248", comment = "load_string_from_bank(248, arg) -> $76A4" }
+"0x8C6C" = { name = "get_string_249", comment = "load_string_from_bank(249, arg) -> $76A4" }
+"0x8C7D" = { name = "get_string_244", comment = "load_string_from_bank(244 messages, arg) -> $76A4" }
+"0x8C8E" = { name = "show_msg_247_43", comment = "draw string 247[arg+43] + delay" }
+"0x8CA8" = { name = "show_msg_247_73", comment = "draw string 247[arg+73] + delay" }
+"0x8CC2" = { name = "draw_officer_status_icon", comment = "blit a 3x2 status icon by officer state (field+14 nibble: idle/moving/besieged/...)" }
+"0x8D4B" = { name = "draw_popup_box", comment = "draw a popup box (21x6) with a string at (9,11)" }
+"0x8D84" = { name = "blit_fullscreen", comment = "full 32x30 blit from bank 1 buffer, toggle screen mode (arg2)" }
+"0x8DF1" = { name = "relation_diff", comment = "abs difference of two countries' relation values ($6FD7 table)" }
+"0x8E36" = { name = "sum_stats_field5", comment = "sum the 4 stat nibbles of record field+5" }
+"0x8E6C" = { name = "sum_stats_field4", comment = "sum the 4 stat nibbles of record field+4" }
+"0x8EA2" = { name = "get_soldiers", comment = "record field+9 (soldiers)" }
+"0x8EAB" = { name = "get_field7", comment = "record field+7" }
+"0x8EB4" = { name = "calc_attack_power", comment = "compute an officer's attack contribution (stat nibble + soldiers/51)" }
+"0x8F0C" = { name = "calc_defense_power", comment = "compute an officer's defense contribution (stat + terrain table $9FCF)" }
+"0x8F6D" = { name = "can_attack_target", comment = "attack legality: adjacency + $6EF6 relation flag&32" }
+"0x8FBE" = { name = "can_deploy_to", comment = "deploy legality: same owner and officer-list not full (<15)" }
+"0x8FEC" = { name = "calc_city_income", comment = "compute a city's gold income (trade/tax/training, cap 9999)" }
+"0x9066" = { name = "calc_city_food", comment = "compute a city's food output (farming*fertility, push_div100)" }
