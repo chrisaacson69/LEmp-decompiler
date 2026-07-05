@@ -794,3 +794,56 @@
 "0xBC69" = { name = "can_reach_or_in_city", comment = "can-march-between OR officer-already-in-city (mode arg3)" }
 "0xBC91" = { name = "prompt_supply_logistics", comment = "choose supply/route options + amount for a move/give (supply base menu)" }
 "0xBDAA" = { name = "build_march_army", comment = "build the marching army: officer_to_battle_unit for each escort + transport unit" }
+
+[prg.bank4]  # $A000 ARMY / develop / personnel / national commands (dispatched via $BA3A jump table).
+# Recruit/Horse/Arrange/Speech/Reward/Training + Invest(Industry/Commerce/Agriculture/Medical) +
+# Appoint/Dispatch/Recall + national Give/policy. Refined schema: city +22=horses, +24=guns (cap 999).
+"0xA003" = { name = "dispatch_command_ptr", comment = "call the current command's handler via jump table $BA3A[mem_76A0]" }
+"0xA013" = { name = "cmd_recruit", comment = "RECRUIT: spend food(+16, 5/soldier) + population(+5) -> soldiers(+20, cap 9999)" }
+"0xA0EB" = { name = "cmd_buy_horses", comment = "HORSE: spend gold(+14, 5/horse) -> horses(+22, cap 999)" }
+"0xA171" = { name = "pool_officer_army", comment = "gather an officer's soldiers/horses/guns (+9/10/11) into the city army pool" }
+"0xA1A7" = { name = "set_arrange_cursor", comment = "set the arrange-screen sprite cursor (soldiers/horses/guns column)" }
+"0xA22F" = { name = "arrange_soldiers", comment = "assign soldiers from the pool to an officer (+9)" }
+"0xA2AA" = { name = "arrange_horses", comment = "assign soldiers + horses to an officer (+9/+10)" }
+"0xA350" = { name = "arrange_guns", comment = "assign soldiers + guns to an officer (+9/+11)" }
+"0xA3FB" = { name = "arrange_officer_menu", comment = "per-officer arrange submenu (soldiers/horses/guns)" }
+"0xA46A" = { name = "snapshot_officer_army", comment = "copy each officer's soldiers/morale/training/horses/guns to work buffers; load city totals" }
+"0xA4D7" = { name = "recompute_officer_morale", comment = "recompute an officer's morale/training after a soldier change" }
+"0xA546" = { name = "commit_officer_army", comment = "write the arranged soldier/horse/gun values back to the officers" }
+"0xA59D" = { name = "commit_city_totals", comment = "write city soldiers(+20)/horses(+22)/guns(+24) from the pooled totals" }
+"0xA5D6" = { name = "cmd_arrange", comment = "ARRANGE: distribute the city's soldiers/horses/guns among its officers" }
+"0xA794" = { name = "cmd_army_menu", comment = "ARMY submenu: Recruit / Horse / Arrange / Speech / Reward / Training" }
+"0xA805" = { name = "show_train_result", comment = "show a training/command result popup (portrait + string 249)" }
+"0xA855" = { name = "raise_all_morale", comment = "SPEECH effect: raise every officer's morale(+13) by leadership" }
+"0xA8C2" = { name = "cmd_speech", comment = "SPEECH: rouse soldiers' morale (uses Leadership)" }
+"0xA92B" = { name = "apply_reward", comment = "raise an officer's loyalty(+7) by a gold reward amount" }
+"0xA972" = { name = "show_reward_result", comment = "show the reward's loyalty result" }
+"0xA9D6" = { name = "cmd_reward", comment = "REWARD: pay gold(+14) to restore an officer's loyalty" }
+"0xAAAD" = { name = "train_officers", comment = "TRAINING effect: raise selected officers' training(+12)" }
+"0xAB45" = { name = "cmd_training", comment = "TRAINING: improve the training level of the city's soldiers" }
+"0xAB8D" = { name = "calc_develop_gain", comment = "compute a develop-stat gain (culture x amount, diminishing)" }
+"0xABB9" = { name = "do_develop_city_stat", comment = "raise a city develop %-stat (+8+arg) by spending gold(+14)" }
+"0xAC9A" = { name = "calc_hospital_gain", comment = "compute hospital(+7) improvement from gold spent" }
+"0xACC8" = { name = "cmd_medical", comment = "MEDICAL: build the hospital (city +7) with gold" }
+"0xAD60" = { name = "cmd_invest_menu", comment = "INVEST submenu: Industry / Commerce / Agriculture / Medical" }
+"0xADC8" = { name = "calc_farming_yield", comment = "AGRICULTURE yield: food + gold from population(+5)/culture(+11)" }
+"0xAE4A" = { name = "decay_city_stats", comment = "annual decay of 3 city develop stats (+8/+9/+10)" }
+"0xAE70" = { name = "cmd_agriculture", comment = "AGRICULTURE: raise food(+16) + gold(+14) output (cap 9999)" }
+"0xAEF8" = { name = "reset_all_officers", comment = "reset every officer's loyalty(+7)/morale(+13) (national)" }
+"0xAF3D" = { name = "cmd_hold_ceremony", comment = "hold a ceremony/ball (national morale event, 34% success)" }
+"0xAF98" = { name = "distribute_food_all", comment = "national: give food from reserve $7072 to every city (+16)" }
+"0xB02E" = { name = "distribute_materials_all", comment = "national: give materials from reserve $7074 to every city (+18)" }
+"0xB0C4" = { name = "cmd_national_give", comment = "GIVE (national): distribute food/materials to all cities" }
+"0xB13C" = { name = "draw_city_policy", comment = "draw a city's tax/supply policy status line" }
+"0xB19B" = { name = "cmd_set_policy", comment = "POLICY: set a city's tax + supply-base flags (+27)" }
+"0xB28E" = { name = "has_ambitious_officer", comment = "true if an officer in the list has max Ambition (general_field&3==3)" }
+"0xB2B4" = { name = "cmd_appoint_governor", comment = "APPOINT: make a selected officer a city's governor/commander (+2 head)" }
+"0xB3B1" = { name = "select_govt_officer", comment = "officer_select from the government reserve pool" }
+"0xB3F8" = { name = "assign_selected_to_city", comment = "assign the selected officers to a city (from reserve)" }
+"0xB437" = { name = "cmd_dispatch_officers", comment = "DISPATCH: send government-reserve officers to a city" }
+"0xB526" = { name = "select_city_officers", comment = "officer_select from a city's officer list" }
+"0xB5A8" = { name = "recall_officers_army", comment = "recall selected officers + their soldiers/horses/guns to the govt reserve" }
+"0xB60E" = { name = "cmd_recall_officers", comment = "RECALL: bring a city's officers (and army) back to the government / swap commander" }
+"0xB7C5" = { name = "cmd_personnel_menu", comment = "PERSONNEL submenu: Appoint / Recall / Dispatch" }
+"0xB820" = { name = "draw_country_grid", comment = "draw the diplomacy country-selection grid (flags + names)" }
+"0xB8A5" = { name = "pick_diplomacy_target", comment = "pick a target country for a diplomacy action (alliance/trade/war), with eligibility checks" }
