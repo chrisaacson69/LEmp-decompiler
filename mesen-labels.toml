@@ -1112,3 +1112,63 @@
 "0xBACA" = { name = "ai_mark_only", comment = "mark the city acted with no resource change (mark_city_acted)" }
 "0xBAD3" = { name = "ai_pick_diplo_target", comment = "NATIVE: pick/return the target country (mem_78A4) for AI diplomacy action index arg" }
 "0xBCB0" = { name = "ai_pick_action_city", comment = "NATIVE: pick/return a city for AI domestic action index arg (from mem_76A2's cities)" }
+
+[prg.bank11]  # $A000 TACTICAL (field) BATTLE turn engine (co-resident with bank 10's $8000 library).
+# run_battle_loop drives up to 31 rounds; each round a side runs run_player_turn or run_ai_turn:
+# select unit -> order menu -> move / melee / charge / special -> morale & rout. Deploy + AI
+# attacker/defender controllers included. Officer fields +7 loyalty/+9 soldiers/+12 training/+13 morale.
+"0xA003" = { name = "compare_side_strength", comment = "compare the two sides' soldier totals; return which side has a >=2x edge (1/2)" }
+"0xA036" = { name = "update_battle_music", comment = "pick and play the battle music for the currently-winning side" }
+"0xA07F" = { name = "unit_flee", comment = "a unit routs off the battlefield: morale hit, pick a retreat city, transfer its officer" }
+"0xA17B" = { name = "unit_morale_check", comment = "per-unit morale roll; on pass restore some morale, on fail show msg and flee" }
+"0xA203" = { name = "side_morale_phase", comment = "run the morale check over every unit of the active side" }
+"0xA231" = { name = "unit_action_submenu", comment = "draw and run a unit's action sub-menu (move/attack/... by unit type)" }
+"0xA2B4" = { name = "unit_order_menu", comment = "the main per-unit order menu: options vary by unit type (infantry/cavalry/artillery)" }
+"0xA38C" = { name = "run_unit_order", comment = "dispatch the chosen unit order; handle the special (254/255) return codes" }
+"0xA3B9" = { name = "battle_pause_menu", comment = "battle pause menu: view status / rest-all / resume" }
+"0xA444" = { name = "close_battle_overlay", comment = "clear selection boxes, hide the battle map, redraw the battlefield background" }
+"0xA453" = { name = "select_battle_target", comment = "cursor-select a target unit on the battlefield (with eligibility checks)" }
+"0xA53C" = { name = "side_has_commander", comment = "true if a side's lead officer is still able to command" }
+"0xA559" = { name = "run_player_turn", comment = "human player's unit-control loop: pick an active unit, issue its order, repeat" }
+"0xA659" = { name = "run_ai_turn", comment = "run the AI unit-control turn for a side (battle screen 13) if units remain" }
+"0xA674" = { name = "ai_pick_new_commander", comment = "pick a replacement commander when the leader falls; bump it to the list head" }
+"0xA791" = { name = "run_battle_loop", comment = "THE tactical battle turn loop: up to 31 rounds, each side acts, checks victory" }
+"0xA88E" = { name = "check_battle_end", comment = "check battle end conditions (a commander lost, or time up); set mem_7BA0/7BA1" }
+"0xA8BB" = { name = "collect_active_units", comment = "gather the active side's still-actable units into the $791C work list" }
+"0xA8F3" = { name = "set_active_unit", comment = "set the active unit (mem_7938) and its officer (mem_793A); load its cell" }
+"0xA912" = { name = "place_unit", comment = "place/deploy a unit at the target cell: update maps, terrain, objective, draw" }
+"0xA994" = { name = "resolve_unit_defeat", comment = "a unit is destroyed/captured: morale, recruit-officer chance, remove from map" }
+"0xAA9C" = { name = "resolve_melee_attack", comment = "resolve a melee attack: charge animation, casualties both sides, rout/capture" }
+"0xAC0E" = { name = "execute_charge", comment = "charge/pursue: step toward the target and repeat melee (cavalry follow-up)" }
+"0xACEA" = { name = "battle_cursor_input", comment = "battlefield cursor movement input handler (D-pad, clamp to unit range)" }
+"0xAE4B" = { name = "draw_unit_status", comment = "draw a unit's status panel: type, weapon/skill, soldiers, training, morale" }
+"0xB03D" = { name = "pick_direction", comment = "directional facing/target picker (rotate through the 6 arrows)" }
+"0xB147" = { name = "use_unit_special", comment = "trigger a unit's special ability (artillery/etc), pick direction" }
+"0xB17D" = { name = "scan_terrain_cells", comment = "count (and optionally mark) battlefield cells of a given terrain type" }
+"0xB1E7" = { name = "first_active_unit", comment = "return the first unit in a list flagged active (bit 128)" }
+"0xB209" = { name = "draw_side_commander", comment = "draw a side's commander stat line (country, name, morale, soldiers)" }
+"0xB321" = { name = "show_battle_status", comment = "full-screen battle-status overview (round, city, both commanders)" }
+"0xB4AD" = { name = "scroll_show_unit", comment = "scroll the battle map to a unit and draw its status" }
+"0xB4BF" = { name = "pick_target_cell", comment = "move the target cursor around the battlefield until the player confirms" }
+"0xB50C" = { name = "snapshot_units", comment = "copy a side's unit list + officer refs into the work buffers ($7CF4/$7D14)" }
+"0xB56A" = { name = "enter_deploy_screen", comment = "set up the full-screen officer-select (deploy) view" }
+"0xB5A8" = { name = "exit_deploy_screen", comment = "tear down the officer-select view, restore the battlefield" }
+"0xB5E3" = { name = "run_deploy_menu", comment = "officer-select menu for deployment (enter, select, exit)" }
+"0xB612" = { name = "pick_deploy_cell", comment = "pick a valid empty deploy cell in the correct zone" }
+"0xB647" = { name = "deploy_side", comment = "deploy a side's units onto the battlefield (player-picked or AI-placed)" }
+"0xB725" = { name = "step_toward_target", comment = "choose the best adjacent step from ($7746,$7747) toward a target" }
+"0xB79B" = { name = "find_nearest_enemy", comment = "find the nearest battlefield cell held by the enemy side" }
+"0xB7F5" = { name = "calc_move_score", comment = "terrain-openness / mobility score for a cell (mean move cost)" }
+"0xB839" = { name = "pick_best_unit", comment = "pick the unit in a list maximizing a scoring function (arg2 = fn ptr)" }
+"0xB85F" = { name = "ai_score_attacker", comment = "AI aggression score for a unit (attack potential)" }
+"0xB8B4" = { name = "ai_score_defender", comment = "AI defense score for a unit" }
+"0xB902" = { name = "ai_find_objective", comment = "find the best gate/objective cell to seize (terrain type 6)" }
+"0xB96D" = { name = "ai_find_advance_cell", comment = "AI: best cell to advance a unit toward on the enemy side" }
+"0xB9FE" = { name = "ai_advance_units", comment = "AI: move the aggressive units toward the objective, step by step" }
+"0xBA71" = { name = "ai_find_defense_cell", comment = "AI: best defensive cell near the defender's commander" }
+"0xBB0C" = { name = "ai_defend_units", comment = "AI: position the defensive units around the commander" }
+"0xBB72" = { name = "promote_active_unit", comment = "move the active-flagged unit to the head of the unit list" }
+"0xBBAA" = { name = "flag_committed_units", comment = "flag units whose officer loyalty >= 5 as active (bit 128)" }
+"0xBBD7" = { name = "clear_active_flags", comment = "clear the active (bit 128) flag on every unit of a side" }
+"0xBBF3" = { name = "ai_run_attacker_side", comment = "run the AI for the attacker side (side 0): deploy then advance" }
+"0xBC35" = { name = "ai_run_defender_side", comment = "run the AI for the defender side (side 1): deploy then defend" }
