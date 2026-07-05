@@ -905,3 +905,39 @@
 "0xBCB1" = { name = "country_has_city_flag", comment = "true if any of a country's cities has flag bit arg" }
 "0xBCD9" = { name = "apply_battle_aftermath", comment = "post-battle: finalize city, adjust $6EF6/$6FD7 relations, conquer if country fell" }
 "0xBE64" = { name = "process_battle_result", comment = "post-battle: disband sides, transfer the captured city, redraw markers" }
+
+[prg.bank8]  # $A000 COMPUTER-PLAYER AI (dispatched via $BEF6): decide + execute one command per
+# AI city/officer turn. ai_choose_command evaluates the ai_want_* predicates and runs the matching
+# ai_execute_* (recruit/develop/trade/train/speech/reward/move/attack). Confirms the city schema.
+"0xA003" = { name = "dispatch_ai", comment = "call the current AI phase handler via jump table $BEF6[mem_76A0]" }
+"0xA013" = { name = "ai_can_afford_metal", comment = "AI: is a needed metal amount within the national metal pool ($7076)" }
+"0xA03C" = { name = "ai_want_transport", comment = "AI predicate: should transport soldiers/gold to a front-line city" }
+"0xA093" = { name = "ai_want_move_officer", comment = "AI predicate: should relocate an officer to a threatened/rich city" }
+"0xA18B" = { name = "ai_want_import", comment = "AI predicate: buy food/materials (trade) when a stat is deficient" }
+"0xA20E" = { name = "ai_want_recruit", comment = "AI predicate: should recruit (not yet recruited, enough population/food)" }
+"0xA27C" = { name = "ai_pick_develop_type", comment = "AI: choose which develop stat to raise (industry/commerce/agriculture)" }
+"0xA32F" = { name = "ai_want_invest", comment = "AI predicate: should invest in industry/agriculture (low stat, spare resource)" }
+"0xA3A6" = { name = "ai_want_arrange", comment = "AI predicate: should re-distribute the city army among officers" }
+"0xA465" = { name = "ai_want_build_stat", comment = "AI predicate: should build a city stat (defense/hospital) with gold" }
+"0xA54A" = { name = "ai_want_buy_horses", comment = "AI predicate: should buy horses (cavalry-inclined officer, spare gold)" }
+"0xA5B4" = { name = "ai_want_speech", comment = "AI predicate: should give a speech (an officer's morale is low)" }
+"0xA5EC" = { name = "ai_want_reward", comment = "AI predicate: should reward (an officer's loyalty is low)" }
+"0xA647" = { name = "ai_want_train", comment = "AI predicate: should train / medical (spare gold vs treasury)" }
+"0xA694" = { name = "ai_choose_command", comment = "AI decision tree: evaluate every ai_want_* predicate, execute the first that fires" }
+"0xA7AE" = { name = "ai_pick_priority", comment = "AI: rank a city's most-urgent need, return a priority code 0-6 (or 255)" }
+"0xA863" = { name = "ai_run_officer_turn", comment = "run one AI officer/city turn: pick priority, choose+do a command, show result" }
+"0xA8DF" = { name = "ai_load_city_state", comment = "load the AI working vars (pop/soldiers/gold/food/threat) from the city record" }
+"0xA9C6" = { name = "ai_calc_develop_amount", comment = "AI: how much a develop-stat would gain for a spend" }
+"0xAA35" = { name = "ai_set_officer_soldiers", comment = "AI: set an officer's soldiers(+9), adjust morale/training" }
+"0xAA9B" = { name = "ai_execute_attack", comment = "AI EXECUTE attack: build the assault army and launch it on a target city" }
+"0xAEFB" = { name = "ai_execute_move", comment = "AI EXECUTE move: relocate an officer + gold/food/soldiers to another city" }
+"0xAFCF" = { name = "ai_execute_trade", comment = "AI EXECUTE trade/import: buy food/materials (+16/+18) with gold" }
+"0xB08D" = { name = "ai_set_tax_policy", comment = "AI: set the city's tax-collection policy bit (+27)" }
+"0xB0CD" = { name = "ai_execute_develop", comment = "AI EXECUTE develop: raise a city stat (+11+arg) spending a resource" }
+"0xB16D" = { name = "ai_execute_recruit", comment = "AI EXECUTE recruit: spend population/food -> soldiers(+20)" }
+"0xB1AB" = { name = "ai_execute_buy_horses", comment = "AI EXECUTE horse: spend gold(+14) -> horses(+22)" }
+"0xB1D0" = { name = "ai_execute_reward", comment = "AI EXECUTE reward: spend gold to raise an officer's loyalty(+7)" }
+"0xB224" = { name = "ai_execute_build", comment = "AI EXECUTE build: raise defense/hospital(+7) or an industry stat with gold" }
+"0xB331" = { name = "ai_execute_train_soldiers", comment = "AI EXECUTE training: raise each officer's training(+12)" }
+"0xB39F" = { name = "ai_execute_speech", comment = "AI EXECUTE speech: raise each officer's morale(+13) by leadership" }
+"0xB405" = { name = "ai_execute_rest", comment = "AI EXECUTE rest: 20% chance to restore officers' loyalty/morale" }
