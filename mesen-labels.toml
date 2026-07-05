@@ -681,3 +681,69 @@
 "0x8EF5" = { name = "battle_cutscene", comment = "scripted battle animation from a $9845 command list (charge/explode)" }
 "0x9063" = { name = "fade_scene", comment = "fade a scene in via 4-step AND-mask reveal, then blit the next" }
 "0x9122" = { name = "run_ending_cinematic", comment = "full ending: logo + marching + story + zoom + battle + fade, then hang" }
+
+[prg.bank10]  # $8000 co-resident library (partner of banks 11/12/14): the TACTICAL (field) BATTLE ENGINE.
+# Hex grid (13-wide: terrain $7748, occupancy $76A2, move-cost $77E4), unit movement/melee/ranged combat,
+# morale/rout/capture, the field AI, battle-map windowing + combat animations.
+# NOTE: bank 10 also has native helpers in its $9000 region (sub_9BA9/$9D97/$9DA9/... -- residue, not yet named).
+"0x8003" = { name = "dispatch_battle_screen", comment = "call_banked_routine to a battle sub-screen via table $9ECC" }
+"0x8025" = { name = "run_battle_setup", comment = "battle setup: dispatch pre-battle screens + deploy" }
+"0x8049" = { name = "sum_unit_soldiers", comment = "sum soldiers (field+9) over a unit linked-list" }
+"0x8066" = { name = "cell_passable", comment = "is grid cell (arg1,arg2) passable for the current side ($76A2 occupancy)" }
+"0x8091" = { name = "unit_list_append", comment = "append a unit to the tail of a battle unit-list" }
+"0x80B2" = { name = "unit_list_remove", comment = "unlink a unit from a battle unit-list" }
+"0x80DF" = { name = "swap_move_dirs", comment = "swap two entries of the move-direction order table $7740" }
+"0x810D" = { name = "recompute_soldiers", comment = "recompute unit soldiers after gun/horse ratio changes; clear orders if 0" }
+"0x8157" = { name = "set_unit_soldiers", comment = "set a unit's soldiers (field+9) then recompute_soldiers" }
+"0x816C" = { name = "calc_move_cost", comment = "movement cost onto a grid cell (terrain $77E4 x unit type + weather $780B)" }
+"0x81DD" = { name = "calc_move_range", comment = "unit movement range (war-stat + traits + morale/26 + base)" }
+"0x821F" = { name = "adjacent_enemy_in_dir", comment = "unit at the hex neighbor in direction arg3, if enemy-occupied" }
+"0x8243" = { name = "enemy_in_dir", comment = "enemy unit at neighbor in direction arg2 (side/zone check)" }
+"0x8296" = { name = "count_side_soldiers", comment = "count/sum soldiers of a side's unit lists ($780C/$780E/$7810)" }
+"0x82D2" = { name = "count_active_units", comment = "count (or sum soldiers of) units still fighting (skip routed/fled)" }
+"0x832B" = { name = "toggle_objective", comment = "toggle capture of an objective cell (gate/castle), update $7838 count" }
+"0x83AB" = { name = "roll_ambush", comment = "ambush/surprise roll from terrain + command stat" }
+"0x8401" = { name = "has_stronger_adjacent", comment = "true if an adjacent enemy has >2x this unit's soldiers" }
+"0x8441" = { name = "refresh_neighbor_tiles", comment = "redraw the 6 hex-neighbor tiles around a cell" }
+"0x8471" = { name = "remove_unit_from_map", comment = "clear a unit from the grid, move to the reserve list, refresh" }
+"0x84DB" = { name = "ai_unit_turn", comment = "field AI for one unit: pick best move toward enemy, or hold/retreat" }
+"0x85F9" = { name = "do_unit_move", comment = "move a unit to the cursor cell; update occupancy, morale cost, redraw" }
+"0x86AE" = { name = "add_morale", comment = "add to a unit's morale (field+13), cap 100" }
+"0x86D8" = { name = "load_battle_effect", comment = "load a battle effect's sprite descriptor from bank 245 into $783E" }
+"0x8701" = { name = "calc_combat_base", comment = "base combat value: war-stat x weapon + politics x10 + bonus, scaled by soldiers" }
+"0x8755" = { name = "calc_defense_value", comment = "defender combat value (calc_combat_base x terrain-defense $9EEE)" }
+"0x878E" = { name = "calc_attack_value", comment = "attacker combat value (calc_combat_base x traits/morale factor)" }
+"0x87EB" = { name = "resolve_melee", comment = "resolve a melee: both sides' casualties (block_copy_far), rout checks, morale" }
+"0x8944" = { name = "do_melee_attack", comment = "animate approach + resolve_melee + redraw + post-combat check" }
+"0x8983" = { name = "calc_charge_range", comment = "charge/pursuit range from command traits + weather" }
+"0x89E3" = { name = "attempt_capture", comment = "attempt to capture a routed enemy officer (charisma/rapport roll)" }
+"0x8A9D" = { name = "recover_morale", comment = "a unit recovers morale over time (field+13, faster w/ leadership)" }
+"0x8AFD" = { name = "rally_adjacent", comment = "rally: recover morale of adjacent friendly units" }
+"0x8B53" = { name = "apply_reinforcement", comment = "add soldiers to a unit, adjust its gun/morale fields" }
+"0x8B9C" = { name = "cell_to_quadrant", comment = "map a grid cell (col,row) -> battle-map quadrant index 0-3 (or -1)" }
+"0x8BE2" = { name = "pick_battle_quadrant", comment = "choose which battle-map quadrant to display (most units/cursor)" }
+"0x8CB9" = { name = "show_battle_cursor", comment = "show the battle-map window cursor box" }
+"0x8CE1" = { name = "hide_battle_map", comment = "hide the battle-map window, restore bounds" }
+"0x8D03" = { name = "scroll_battle_map", comment = "scroll/swap the battle-map window to keep the active cell visible" }
+"0x8E04" = { name = "draw_move_cursor", comment = "draw the move-target cursor metasprite at (786C,786E)" }
+"0x8E43" = { name = "clear_move_cursor", comment = "clear the move-target cursor metasprite" }
+"0x8E64" = { name = "draw_select_box", comment = "draw the unit-selection box sprite" }
+"0x8EA7" = { name = "clear_select_box", comment = "clear the unit-selection box" }
+"0x8EBC" = { name = "draw_target_cursor", comment = "draw the attack-target cursor metasprite" }
+"0x8F43" = { name = "draw_unit", comment = "draw a unit sprite on the grid with its state (soldiers digit, routed, flag)" }
+"0x90D0" = { name = "draw_terrain_cell", comment = "draw one grid cell's terrain tile + objective/gate marker" }
+"0x91B8" = { name = "animate_engage", comment = "melee engage animation: the two units step toward each other" }
+"0x91EC" = { name = "animate_charge", comment = "cavalry charge animation with screen scroll" }
+"0x9376" = { name = "animate_unit_flash", comment = "flash a unit's sprite (hit effect)" }
+"0x93DE" = { name = "show_battle_msg", comment = "show a battle status message with a general name (windowed vs prompt)" }
+"0x943A" = { name = "blit_battlefield_bg_off", comment = "blit the battlefield background offscreen (bank 235)" }
+"0x9462" = { name = "blit_battlefield_bg", comment = "blit the battlefield background on-screen (bank 235)" }
+"0x948A" = { name = "draw_officer_marker_at", comment = "draw an officer face marker sprite at a grid cell" }
+"0x94FE" = { name = "draw_effect_sprites", comment = "position the 2 effect sprites for a battle animation frame" }
+"0x9563" = { name = "animate_projectile", comment = "arc a projectile/effect from attacker to a target over frames" }
+"0x95E2" = { name = "show_battle_string", comment = "show a battle string in the map window + delay" }
+"0x95F8" = { name = "scan_flee_target", comment = "scan a city list for the best friendly city to flee to (fewest officers)" }
+"0x9680" = { name = "pick_retreat_city", comment = "pick a routed unit's retreat destination city (or capital)" }
+"0x96E9" = { name = "transfer_officer_city", comment = "move an officer between city officer-lists (rebuild lists)" }
+"0x9724" = { name = "rout_unit", comment = "a unit is destroyed/routed: remove from map, retreat officer, message; set game-over if player's lord" }
+"0x97AE" = { name = "post_combat_check", comment = "post-combat: roll capture/surrender/rout for a beaten unit" }
