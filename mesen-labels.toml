@@ -747,3 +747,50 @@
 "0x96E9" = { name = "transfer_officer_city", comment = "move an officer between city officer-lists (rebuild lists)" }
 "0x9724" = { name = "rout_unit", comment = "a unit is destroyed/routed: remove from map, retreat officer, message; set game-over if player's lord" }
 "0x97AE" = { name = "post_combat_check", comment = "post-combat: roll capture/surrender/rout for a beaten unit" }
+
+[prg.bank3]  # $A000 economy/logistics command handlers (dispatched via $BE20 jump table).
+# TRANSPORT, MOVE, GIVE, DISTRIBUTE, DEVELOP, INVEST, SUPPLY, REQUEST. Co-resident with bank 1.
+# These pinned the CITY word schema: field +14=gold +16=food +18=materials +20=soldiers (see [lemp] schema).
+"0xA003" = { name = "dispatch_command_ptr", comment = "call the current command's handler via jump table $BE20[mem_76A0]" }
+"0xA013" = { name = "prompt_transport_amounts", comment = "prompt soldiers + gold to transport (input_number, capped by city stock)" }
+"0xA0B6" = { name = "prompt_transport_dest", comment = "pick a reachable destination city for a transport (relation/adjacency check)" }
+"0xA13B" = { name = "pick_transport_officers", comment = "officer_select_menu to choose which officers escort the transport" }
+"0xA23A" = { name = "check_can_transport", comment = "validate a city can transport: has gold(+14)/food(+16)/officers" }
+"0xA271" = { name = "do_transport_arrival", comment = "apply a transport's arrival: supply base handling, materials(+26)" }
+"0xA37C" = { name = "cmd_transport", comment = "TRANSPORT command: pick dest + officers, move gold/soldiers between cities" }
+"0xA598" = { name = "toggle_tax_exempt_flag", comment = "toggle a city tax/conscription policy bit (field+27) after confirm" }
+"0xA619" = { name = "cmd_set_policy", comment = "set a city policy (tax/conscription) via grid menu" }
+"0xA664" = { name = "do_develop_stat", comment = "develop city %-stat byte (+11+arg, cap 100) by spending a resource word (arg2)" }
+"0xA73F" = { name = "cmd_develop", comment = "DEVELOP command (Commerce/Agriculture): raise a city %-stat" }
+"0xA7AF" = { name = "show_govt_response", comment = "show the government's reply to a request (portrait + string 249)" }
+"0xA7FF" = { name = "cmd_request", comment = "REQUEST command: ask the national government for funds/support" }
+"0xA8BB" = { name = "cmd_deposit_treasury", comment = "deposit city gold(+14)/food(+16)/materials(+18) into the national treasury ($7070/72/74)" }
+"0xAA39" = { name = "cmd_supply_menu", comment = "SUPPLY submenu (invest / send / distribute options)" }
+"0xAAAD" = { name = "cmd_invest_metal", comment = "INVEST: raise a city's build resource (+24, cap 999) from national metal ($7076)" }
+"0xABA7" = { name = "pick_own_supply_city", comment = "prompt to pick one of your own supply-base cities" }
+"0xABE5" = { name = "pick_supply_source", comment = "pick a source city with materials(+26) to send from" }
+"0xAC34" = { name = "pick_adjacent_city", comment = "pick an adjacent friendly city (<=2 index apart) as a target" }
+"0xACD0" = { name = "cmd_send_materials", comment = "SEND: move materials(+26) between two cities" }
+"0xAE05" = { name = "cmd_load_materials", comment = "add materials(+26) to a city from the national metal pool ($7070)" }
+"0xAEF9" = { name = "cmd_unload_materials", comment = "remove materials(+26) from a city into storage" }
+"0xAFAE" = { name = "cmd_deposit_wrapper", comment = "pick a city then cmd_deposit_treasury" }
+"0xB01C" = { name = "cmd_give_wrapper", comment = "pick a city then cmd_give_to_city" }
+"0xB08A" = { name = "cmd_distribute", comment = "DISTRIBUTE national gold/food/materials ($7070/72/74) to a city (+14/16/18)" }
+"0xB1A4" = { name = "cmd_treasury_menu", comment = "TREASURY submenu: deposit / give / distribute / collect" }
+"0xB209" = { name = "check_capital_locked", comment = "block a command if at the capital in scenario 3 (message)" }
+"0xB232" = { name = "apply_soldier_losses", comment = "deduct soldiers(+9) from the selected officers by a computed %" }
+"0xB2C5" = { name = "split_by_ratio", comment = "probabilistic split of two amounts by squared-odds (block_copy_far)" }
+"0xB316" = { name = "check_winter_penalty", comment = "special event: Russia/winter doubles a supply cost (scenario flag $7060)" }
+"0xB3DC" = { name = "distribute_country_supply", comment = "spread supply(+26) evenly across a country's cities" }
+"0xB4C3" = { name = "officer_has_soldiers", comment = "officer has soldiers(+9) and is not already-moved (+14 bit 128)" }
+"0xB4DE" = { name = "officer_can_depart", comment = "officer may leave (not needed for defense / relations ok)" }
+"0xB53D" = { name = "select_command_officers", comment = "select officers for a command (list build + officer_select_menu), tally soldiers" }
+"0xB652" = { name = "roll_rebellion", comment = "50% roll for unrest that reduces the moved resources (low supply)" }
+"0xB70C" = { name = "prompt_move_dest", comment = "pick a destination city for a move (reachability check)" }
+"0xB76C" = { name = "do_officer_move", comment = "move selected officers + gold/food/soldiers to the destination city; check conquest" }
+"0xB81A" = { name = "cmd_move_officers", comment = "MOVE command: relocate officers (with gold/food/soldiers) to another city" }
+"0xBA75" = { name = "prompt_resource_amounts", comment = "prompt gold/food/materials amounts (3x input_number + confirm)" }
+"0xBB00" = { name = "cmd_give_to_city", comment = "GIVE gold/food/materials from this city to another via escorts" }
+"0xBC69" = { name = "can_reach_or_in_city", comment = "can-march-between OR officer-already-in-city (mode arg3)" }
+"0xBC91" = { name = "prompt_supply_logistics", comment = "choose supply/route options + amount for a move/give (supply base menu)" }
+"0xBDAA" = { name = "build_march_army", comment = "build the marching army: officer_to_battle_unit for each escort + transport unit" }
