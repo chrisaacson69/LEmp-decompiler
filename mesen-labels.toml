@@ -344,6 +344,17 @@
 "0xFE8B" = { name = "syscall_play_music", comment = "id25: map sound banks, $4015=$05, clear sound state, load track" }
 "0xFF3A" = { name = "syscall_set_sound_params", comment = "id26: copy $54/$55/$52 -> sound params $7D/$7E/$7C" }
 
+# --- app-bank-reachable native leaves (2nd floor-closure pass: {native} CALL targets from banks 0-17) ---
+"0xD383" = { name = "prg_ram_write_protect", comment = "== NA2 prg_ram_write_protect ($E220); write $5102=1,$5103=2 (MMC5 PRG-RAM write unlock)" }
+"0xD3B6" = { name = "record_field_minus100", comment = "5 vm-args; field $0C - 100 ($64) with borrow (bounds/scale). 3 callers" }
+"0xD402" = { name = "record_word_read", comment = "3 vm-args; read a word record field via ($0A),y. 25 callers" }
+"0xD43B" = { name = "record_word_nonzero", comment = "3 vm-args; test whether word field $0A/$0B is nonzero. 42 callers -- core predicate" }
+"0xD47C" = { name = "record_query_5arg", comment = "5 vm-args; record query via load_vm_args. 4 callers -- exact semantics TBD" }
+"0xD53C" = { name = "city_index_from_ptr", comment = "3 vm-args; (word $0A/$0B - $7176) -> city record index. 18 callers" }
+"0xD5A3" = { name = "record_or_4bytes", comment = "OR 4 record bytes via ($02),y; branch on zero. 11 callers" }
+"0xD61B" = { name = "record_or_2bytes", comment = "OR record bytes via ($02),y. 11 callers" }
+"0xDC6B" = { name = "load_word_test_msb", comment = "load word arg via ($02),y; asl -> test high bit. 15 callers" }
+
 # --- BYTECODE OS layer in bank 31 ($E000-$FFFF), decompiled bottom-up on the named floor (2026-07-02) ---
 # These are bytecode subs (JSR $E509 stubs), NOT native. os_main $E17D is above (anchors).
 "0xE003" = { name = "far_call", comment = "cross-bank invoke: save window-2 bank, map arg2, call_banked_routine(1,arg1), restore. Wraps call_in_bank_dcd1" }
@@ -468,3 +479,68 @@
 "0xA05A" = { name = "message_pool", comment = "42 diplomacy/trade/command prompt strings, indexed by message_ptr_table. Full list: docs/01-data-tables.md" }
 
 [prg.bank19]  # = bank value 243 ($F3 & 0x1F). Font/charmap + scene headers (load_scene $A004).
+
+[prg.bank0]  # L1 universal library ($A000-resident): display + game-state, called by all 16 banks.
+# Graphics (faces/icons/map/HUD) + record-list ops + the $6EF6 country diplomacy matrix.
+# Some diplomacy-flag predicates are provisional (bit meaning pending the diplomacy command-walk).
+"0xA003" = { name = "draw_face_at_3_10", comment = "draw_face(3,10,arg) -- portrait at fixed slot" }
+"0xA010" = { name = "blit_icon_9x7", comment = "blit a 9x7 metasprite indexed by arg3 (<9) from table $BB1E/$BD16 (bank 243)" }
+"0xA03A" = { name = "blit_icon_7x5", comment = "blit a 7x5 metasprite indexed by arg3 (<18), gated on flag $6FEC&2" }
+"0xA06D" = { name = "compose_face_sprite", comment = "build a composite face from nibble-indexed parts (copy_from_bank), then blit 5x6" }
+"0xA1F6" = { name = "draw_face", comment = "draw a face/portrait: composite (arg3 high bit) or simple 5x6 blit" }
+"0xA22C" = { name = "list_sum_by_type", comment = "iterate a record list, tally a field by unit type (arg2 3-7)" }
+"0xA295" = { name = "count_officers_in_country", comment = "count officer-list entries whose country index (+2) == (arg2 country)" }
+"0xA2CC" = { name = "can_march_between", comment = "can move between records arg1,arg2 (owner + relation + $6EF6 checks)" }
+"0xA327" = { name = "officer_available", comment = "officer arg1 is free to act (owner set, $6EF6 flag&32 clear)" }
+"0xA367" = { name = "check_command_phase", comment = "command-phase gate on $6013/$6FEC (record_field_and 4/5)" }
+"0xA39C" = { name = "general_can_command", comment = "general status allows commanding (field+14&8, record_field_and==3, city state)" }
+"0xA3E0" = { name = "officer_field2_active", comment = "rec->field_2 set and general_can_command(field_2)" }
+"0xA3F8" = { name = "city_besieged", comment = "city arg1: field+14 nibble==7 AND owner country_byte&1 (blockaded/besieged)" }
+"0xA425" = { name = "can_reach_city", comment = "general_assigned_to_city(a,b) OR can_march_between(a,b,0)" }
+"0xA443" = { name = "collect_countries", comment = "fill an array with country indices passing predicate table $BEB2[arg3]" }
+"0xA49E" = { name = "collect_cities", comment = "fill an array with city indices (optional owned-filter via city_field)" }
+"0xA4DA" = { name = "rel_flag32", comment = "diplomacy matrix $6EF6[a][b] & 32 (likely allied -- verify in diplomacy walk)" }
+"0xA4FD" = { name = "rel_flag16", comment = "diplomacy matrix $6EF6[a][b] & 16 (likely at-war -- verify)" }
+"0xA520" = { name = "rel_flag32_rec", comment = "rel_flag32 taking country RECORD ptrs (country_ptr -> index)" }
+"0xA54B" = { name = "country_officers_lt15", comment = "count_officers_in_country(a,b) < 15" }
+"0xA559" = { name = "clear_officer_orders", comment = "zero officer record fields +9..+13 (clear assignment/orders)" }
+"0xA578" = { name = "assign_to_city", comment = "link an officer record to a city (index +3, owner +2)" }
+"0xA5B3" = { name = "assign_to_govt", comment = "assign officer to government: field+14 nibble=3, link to country" }
+"0xA5E8" = { name = "assign_to_reserve", comment = "assign officer to reserves: field+14 nibble=2, clear orders" }
+"0xA617" = { name = "list_insert", comment = "insert record arg1 at head of list arg2, set owner index +4" }
+"0xA630" = { name = "list_remove", comment = "unlink record arg1 from list arg2, clear its link + owner" }
+"0xA66A" = { name = "list_has_officers", comment = "record_word_nonzero(rec->field_2) -- officer-list head nonempty" }
+"0xA67A" = { name = "has_governor", comment = "rec->field_4 != 0 (governor/lead ptr present)" }
+"0xA685" = { name = "list_contains_country", comment = "search rec's list (from +4) for an entry owned by country arg2" }
+"0xA6A9" = { name = "ptr_neq", comment = "arg1 != arg2" }
+"0xA6B2" = { name = "rel_no_relation", comment = "$6EF6[a][b] & 15 == 0 (no relation level between a,b)" }
+"0xA6E0" = { name = "rel_zero", comment = "$6EF6[a][b] == 0 (no relation at all)" }
+"0xA70C" = { name = "check_country_wars", comment = "flag32 gate then scan all countries for &16 vs arg (war/alliance chain check)" }
+"0xA771" = { name = "rel_not_flag16", comment = "$6EF6[a][b] & 16 test for a specific pair (arg2==$7068 short-circuits)" }
+"0xA7A2" = { name = "rel_has_flags", comment = "$6EF6[a][b] & 15 or & 32 present (has relation/alliance)" }
+"0xA7E1" = { name = "list_contains_country_b", comment = "search rec's list (from +4) for country arg1 (variant)" }
+"0xA805" = { name = "list_head_nonzero", comment = "*(word*)arg2 != 0 (list head pointer set)" }
+"0xA80F" = { name = "rel_has_level", comment = "$6EF6[a][b] & 15 != 0 (nonzero relation level)" }
+"0xA833" = { name = "list_contains_country_c", comment = "search rec's list (from +4) for country arg2 (variant)" }
+"0xA857" = { name = "general_assigned_to_city", comment = "is general arg1 in city arg2's officer list (city_data7 array search)" }
+"0xA895" = { name = "draw_map_cursorbox", comment = "queue 12x10 PPU transfer at the map cursor ($7CE8/$7CEA)" }
+"0xA8AE" = { name = "set_map_cursor", comment = "set_cursor relative to the map origin ($7CE8/$7CEA)" }
+"0xA8C6" = { name = "enter_map_view", comment = "save scroll bounds -> $7CEC/$7CEE, set_map_bounds" }
+"0xA8E3" = { name = "restore_map_bounds", comment = "set_map_bounds($7CEC,$7CEE)" }
+"0xA8F3" = { name = "pop_map_window", comment = "free one map BG-tile window (free_bg_tiles), dec $7CE6" }
+"0xA912" = { name = "clear_map_windows", comment = "pop all map tile windows (loop pop_map_window)" }
+"0xA924" = { name = "open_map_window", comment = "open a 14x12 map tile window at (arg1,arg2): upload_bg_tiles + blit" }
+"0xA974" = { name = "draw_country_flag", comment = "blit an 8x11 country banner indexed by arg1 (table $A9F8, bank 244)" }
+"0xA99D" = { name = "set_map_metasprite", comment = "copy sprite tiles + set_chr_bank_alt for a map metasprite slot ($7D59)" }
+"0xA9C5" = { name = "draw_country_map", comment = "draw the whole country map view (borders/flags/panels) selected by $7B59" }
+"0xAB27" = { name = "draw_hud_date", comment = "draw year/month ($6FE6) + a treasury/status value via format_value_raw" }
+"0xAB73" = { name = "draw_city_marker", comment = "copy marker sprite data (bank 250) + set_chr_bank_alt for a city marker" }
+"0xABC2" = { name = "draw_city_markers", comment = "loop the 46 cities, draw each general/city marker (draw_general_marker)" }
+"0xAC18" = { name = "draw_ui_frame", comment = "draw a HUD/panel frame layout (arg selects 0-6): borders + fills via blit/PPU" }
+"0xAE8F" = { name = "officer_menu_input", comment = "officer-grid cursor input: D-pad navigation, returns selection / -1..-4" }
+"0xAFDF" = { name = "draw_general_stats", comment = "format a general's 4-stat block + rank at the cursor (format_value)" }
+"0xB075" = { name = "draw_officer_detail", comment = "officer detail screen: frame (draw_ui_frame 4) + draw_general_stats + label" }
+"0xB0BF" = { name = "officer_deploy_status", comment = "officer deploy state from fields +10/+11 -> 0/2" }
+"0xB0DC" = { name = "draw_officer_row", comment = "draw one officer roster row: name, 4 stats, rank, soldiers (general_name + format)" }
+"0xB28F" = { name = "draw_officer_page", comment = "draw a page of officer rows from the $7CF4 list ($7D14 = selection flags)" }
+"0xB2EE" = { name = "officer_select_menu", comment = "paginated officer multi-select menu (list + input + select/limit checks)" }

@@ -55,11 +55,15 @@ SYSCALL_TRAMPS = {0xEF1E, 0xEF3E, 0xF984}         # param-copy entry, simple ent
 
 # BYTECODE-REACHABLE native leaves (the bottom-up completion): native subs called ONLY from bytecode
 # via CALL_abs -- never from a native JSR, so the vector/handler/JSR-census seeds miss them. Extracted
-# from the fixed-bank bytecode {native} CALL targets (koei_vm.py disasm lemp 30/31). Seeding them here
-# closes the floor: reach_from expands each + classifies vs NA2. ($F3A3 alone has 14 bytecode callers.)
+# from the {native} CALL targets across ALL decompiled banks (0-17, 30, 31), not just the fixed banks --
+# app banks call more record/field helpers. Seeding them closes the floor: reach_from expands each +
+# classifies vs NA2. ($D43B alone has 42 bytecode callers.)
 BYTECODE_LEAVES = {
+    # fixed-bank leaves (banks 30/31)
     0xD38D, 0xD460, 0xD4CD, 0xD7B0, 0xD7D1, 0xD7F3, 0xDCD6, 0xDCF6, 0xDD1F,
     0xDD79, 0xDDCA, 0xDE0F, 0xDE2C, 0xDE3B, 0xDE6E, 0xDE77, 0xF3A3, 0xF423,
+    # app-bank leaves (record/field helpers reached from banks 0-17)
+    0xD383, 0xD3B6, 0xD402, 0xD43B, 0xD47C, 0xD53C, 0xD5A3, 0xD61B, 0xDC6B,
 }
 
 def is_bytecode_stub(buf, addr):

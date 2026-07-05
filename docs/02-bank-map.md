@@ -45,7 +45,7 @@ analysis found 0 non-self cross-window calls) → **no `coresident_N` config nee
 
 | bank | role | depends on |
 |---|---|---|
-| 0 | **universal $A000 code library** | data: 19, 20, 26 |
+| 0 | **universal $A000 library — display + game-state** (faces/icons/map/HUD, record-list ops, the `$6EF6` country diplomacy matrix) | data: 19, 20, 26 |
 | 1 | $8000 dispatcher/library | calls 0; maps 1/5/24/25 (+ dynamic) |
 | 2 | shared library | calls 0 |
 | 3, 4 | app logic | call 0, 2 |
@@ -69,6 +69,19 @@ analysis found 0 non-self cross-window calls) → **no `coresident_N` config nee
 - **bank 2** ← 8 (3,4,5,6,7,8,9,31); **bank 5** ← 8 (1,6,9,10,12,17,30,31); **bank 1** ← 6.
 - **data:** bank 26 (names/records) ← 6; bank 19 (font/scenes) ← 5; bank 20 (messages) ← 5; bank 21 ← 3.
 - **banks 18, 22** are reached **only** via bank 31 `far_call` (invisible to a code-call-only scan).
+
+## Leaves-first walk order (by code-call dependency; within a layer, fewest subs first)
+
+- **L0** = fixed floor, banks 30/31 — **DONE** (native floor + bytecode-OS, 0 unnamed).
+- **L1** = **bank 0** (61 subs) — **DONE** (display + game-state library; every one of the 16 callers now
+  resolves bank-0 names). Its 42-caller reach makes it the highest-leverage bank.
+- **L2** = banks that call only bank 0 — 15(18), 16(19), 2(26), 11(55), 17(60), 1(61), 10(61).
+  *(Bank 2 is the 2nd-most-called after 0, so it unblocks the most L3 despite not being smallest.)*
+- **L3** = 12(22), 8(32), 3(43), 4(49), 7(54) — add bank 2 or 11.
+- **L4** = 5(34), 14(43). **L5** = 6(45), 9(74) — deepest orchestrators.
+
+The record-field schema stays generic (`field_N`) until a command handler in these banks is caught
+writing an offset with a manual-confirmed cap — that's how L2-L5 will pin gold/soldiers/loyalty.
 
 ## Open items
 - **Dynamic bank args** (bank 1 `set_prg`×4, bank 31 `far_call`/`copy`/`set_prg`): the bank is computed
