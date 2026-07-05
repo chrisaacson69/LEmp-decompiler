@@ -980,3 +980,53 @@
 "0xBB05" = { name = "dispatch_info_screen", comment = "info-screen dispatcher (mem_7896): city summary / detail / country card / officer" }
 "0xBB57" = { name = "show_officer_trait", comment = "draw an officer's special-trait / status popup strings (mask table $BE90)" }
 "0xBBE0" = { name = "auto_exchange_officers", comment = "loop: swap weakest officers + 1000-gold between two countries until a govt fills" }
+
+[prg.bank6]  # $A000 INFO / status-view subsystem (dispatched via $BA20). Browse governments, cities,
+# officer rosters/cards, the diplomacy relations map, power-comparison charts, and city/country
+# rankings; plus the system menu (music/sound/message-speed/save/quit). All read-side -- re-confirms
+# the city schema (pop/gold/food/materials/soldiers/horses/guns/develop). Co-resident with bank 1.
+"0xA003" = { name = "dispatch_command_ptr", comment = "call the current command's handler via jump table $BA20[mem_76A0]" }
+"0xA013" = { name = "confirm_view_action", comment = "prompt to spend a look-action when inspecting another country (mem_78D4 gate)" }
+"0xA049" = { name = "wait_confirm_key", comment = "spin until the controller returns A (1) or B (2)" }
+"0xA082" = { name = "draw_scroll_hint", comment = "draw the scroll/confirm footer hint string ($BA30)" }
+"0xA08F" = { name = "pick_info_target", comment = "map-cursor select a city/country to inspect (info-view target picker)" }
+"0xA183" = { name = "view_governments", comment = "browse foreign government screens (pick target, render govt, page)" }
+"0xA1CC" = { name = "view_cities", comment = "cmd 19: browse city info screens (pick city, render, page)" }
+"0xA229" = { name = "draw_country_stat_bars", comment = "draw a country's 4-attribute stat bars from record fields +4/+5" }
+"0xA28C" = { name = "draw_roster_stats", comment = "draw the officer-roster stat columns (soldiers/skill values) for a page" }
+"0xA3E1" = { name = "set_roster_portrait", comment = "set an officer portrait sprite cell in the roster grid (CHR bank alt)" }
+"0xA451" = { name = "draw_roster_faces", comment = "draw an officer-roster row: portraits + names" }
+"0xA4F3" = { name = "browse_officer_roster", comment = "paged officer-roster browser (full-screen, controller nav)" }
+"0xA661" = { name = "draw_country_panel", comment = "draw a country's attribute panel (stat bars + ruler loyalty/ambition)" }
+"0xA70A" = { name = "draw_officer_card", comment = "draw a full officer detail card: banner, portrait, traits, stats" }
+"0xA7A5" = { name = "browse_officer_cards", comment = "officer-list browser with per-officer detail card (draw_officer_card)" }
+"0xA88B" = { name = "view_city_officers", comment = "cmd 20/23: pick a city, then browse its officers as roster or cards" }
+"0xA8FF" = { name = "view_country_officers", comment = "pick one foreign country, browse its officers" }
+"0xA987" = { name = "view_compare_officers", comment = "pick two countries, browse/compare their officers" }
+"0xAA38" = { name = "draw_relations_map", comment = "draw the diplomacy relations map: country markers colored by $6EF6" }
+"0xAB4C" = { name = "view_relations", comment = "pick a country, collect its relations, show the relations map" }
+"0xABC7" = { name = "menu_info", comment = "cmd 18: INFO submenu -> governments/cities/officers/country-officers/compare/regions" }
+"0xAC8E" = { name = "menu_rankings", comment = "cmd 21: DATA submenu -> power chart/officers/compare/relations/city+country rankings" }
+"0xAD4A" = { name = "run_info_menus", comment = "top-level info driver: loop menu_info then menu_rankings until exit" }
+"0xADC2" = { name = "cmd_info_a", comment = "info command entry: set look-gate mem_78D4, run info menus starting at page 1" }
+"0xADD1" = { name = "cmd_info_b", comment = "info command entry: set look-gate mem_78D4, run info menus starting at page 0" }
+"0xADE0" = { name = "browse_map_quadrants", comment = "cycle the map through its 4 quadrants with the controller" }
+"0xAE64" = { name = "toggle_option", comment = "toggle a config option bit in mem_6FEC (options menu item)" }
+"0xAF17" = { name = "set_message_speed", comment = "set the message speed setting mem_6FED (1-10)" }
+"0xAF41" = { name = "save_game", comment = "copy the live game state ($6004..$7685) to battery SRAM (save)" }
+"0xAF88" = { name = "apply_option", comment = "system-menu item handler (music/sound/display/speed/save/quit; cmd names 29-34)" }
+"0xB0A6" = { name = "menu_system", comment = "cmd 28: system/options menu (music/sound/display/speed/save/quit)" }
+"0xB0EB" = { name = "cmd_confirm_only", comment = "cmd 55: a standalone yes/no confirm command (get_string_244 34); returns 1/255" }
+"0xB112" = { name = "cmd_info_c", comment = "info command entry: clear look-gate mem_78D4, run info menus starting at page 1" }
+"0xB121" = { name = "cmd_info_d", comment = "info command entry: clear look-gate mem_78D4, run info menus starting at page 0" }
+"0xB130" = { name = "menu_system_locked", comment = "system/options menu variant with a locked item (shows 'not now' message)" }
+"0xB1B4" = { name = "draw_city_rank_header", comment = "draw the city-ranking table column header (mode arg1)" }
+"0xB1F4" = { name = "draw_city_rank_row", comment = "draw a city-ranking row: name, population, army, resources" }
+"0xB2B3" = { name = "draw_country_rank_header", comment = "draw the country-ranking table column header (mode arg1)" }
+"0xB320" = { name = "draw_country_rank_row", comment = "draw a country-ranking row: resources / develop stats / policy icons" }
+"0xB41B" = { name = "show_ranking_table", comment = "full ranking-table browser (cities if arg1 else countries), paged" }
+"0xB5D5" = { name = "scale_to_bar5", comment = "map a stat to a 0-5 bar level (value/20 + 1, capped at 5)" }
+"0xB5EC" = { name = "scale_to_bar_log", comment = "map a value to a 1-5 log-scale bar level (doubling threshold)" }
+"0xB614" = { name = "draw_power_chart_page", comment = "draw one page of the country power-comparison chart (bars + relation)" }
+"0xB86C" = { name = "show_power_chart", comment = "country power-comparison chart browser (full-screen, paged)" }
+"0xB94C" = { name = "show_region_control", comment = "4-region overview: which country controls each region (call $BC7E)" }
