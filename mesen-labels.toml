@@ -941,3 +941,42 @@
 "0xB331" = { name = "ai_execute_train_soldiers", comment = "AI EXECUTE training: raise each officer's training(+12)" }
 "0xB39F" = { name = "ai_execute_speech", comment = "AI EXECUTE speech: raise each officer's morale(+13) by leadership" }
 "0xB405" = { name = "ai_execute_rest", comment = "AI EXECUTE rest: 20% chance to restore officers' loyalty/morale" }
+
+[prg.bank5]  # $A000 DIPLOMACY commands (dispatched via $BD00) + country/city info-card renderers.
+# Recruit/invite officers, trade goods, incite/declare war, mediate, exchange, form alliance -- all
+# keyed on the symmetric relation matrix $6EF6 (set_relation) + AI weights $6FD7. Co-resident w/ bank 1.
+# Read-side confirmation of the city schema (gold/food/materials/soldiers/horses/guns accessors).
+"0xA003" = { name = "dispatch_command_ptr", comment = "call the current command's handler via jump table $BD00[mem_76A0]" }
+"0xA013" = { name = "recruit_search", comment = "cmd 39: spend gold (budget $7078) to search for unaffiliated officers" }
+"0xA05C" = { name = "recruit_invite_officer", comment = "invite a free/enemy officer into the government (assign_to_govt)" }
+"0xA1AF" = { name = "cmd_recruit_menu", comment = "cmd 38: personnel-recruitment submenu (search / invite officer)" }
+"0xA207" = { name = "find_best_diplomat_in_city", comment = "return the officer with the highest diplomacy skill (field&12) in a city -> envoy" }
+"0xA248" = { name = "draw_envoy_popup", comment = "draw the envoy panel: target country name, envoy name + portrait, popup box" }
+"0xA295" = { name = "show_reaction_popup", comment = "pick a reaction string (tier 6/7/8 by value) and show it in the envoy popup" }
+"0xA2BE" = { name = "diplo_give_goods", comment = "TRADE give: send gold/food/materials to another country to improve relations" }
+"0xA563" = { name = "diplo_request_goods", comment = "TRADE request: ask another country for goods (requires relation > 50)" }
+"0xA838" = { name = "cmd_trade", comment = "cmd 43: trade submenu (give / request x food / materials)" }
+"0xA8ED" = { name = "set_relation", comment = "write the symmetric country-relation matrix $6EF6[a][b]=[b][a]=value" }
+"0xA91B" = { name = "drain_country_morale", comment = "reduce every officer's loyalty(+7)/morale(+13) in a country by ~5% (action cost)" }
+"0xA95E" = { name = "roll_alliance_accept", comment = "probability roll for a join/alliance offer (relation + ambition + gold offered)" }
+"0xAA0B" = { name = "cmd_incite_war", comment = "diplomacy: pay gold to incite/persuade a country into war (sets war state, AI weights)" }
+"0xAB6E" = { name = "roll_ceasefire_accept", comment = "accept-probability roll for a cease-fire / peace request" }
+"0xABCE" = { name = "cmd_declare_war", comment = "diplomacy: declare war on a country via envoy (sets the at-war relation bit, 16)" }
+"0xAC9F" = { name = "any_war_in_progress", comment = "scan $6EF6 for any country pair at war (==16); precondition for mediation" }
+"0xACCE" = { name = "roll_mediation_accept", comment = "accept-probability roll for a mediation attempt" }
+"0xAD24" = { name = "cmd_mediate_peace", comment = "diplomacy: mediate peace between two OTHER countries (sets $6EF6=0 both ways)" }
+"0xAE7E" = { name = "redistribute_officer_loyalty", comment = "set each of a country's officers' loyalty(+7) by formula, cut morale(+13)" }
+"0xAEC5" = { name = "apply_alliance_effects", comment = "set AI relation targets + collect co-belligerents, apply redistribute_officer_loyalty" }
+"0xAF2E" = { name = "cmd_form_alliance", comment = "diplomacy: form an alliance (envoy, then set the allied relation bit, $6EF6=32)" }
+"0xB059" = { name = "list_country_officers", comment = "collect a country's officer indices into a buffer (255-terminated)" }
+"0xB0A0" = { name = "transfer_weakest_officer", comment = "pick the weakest officer and reassign it between two countries (exchange)" }
+"0xB17C" = { name = "cmd_exchange", comment = "diplomacy: officer + gold exchange between two countries (1000-gold units)" }
+"0xB2F7" = { name = "cmd_diplomacy_menu", comment = "cmd 36: diplomacy submenu -> incite / declare-war / exchange / mediate / alliance" }
+"0xB36D" = { name = "calc_city_stat_display", comment = "compute a city-info display field (current/max) for stat selector mem_6FE8" }
+"0xB526" = { name = "draw_city_summary", comment = "draw a city's info panel: governor, gold/food/materials, army, policy flags" }
+"0xB6A7" = { name = "draw_city_detail", comment = "draw the detailed city stat grid (11 develop values + policy icons)" }
+"0xB88F" = { name = "draw_country_card", comment = "draw a country's diplomacy card: ruler face, relation, AI weight, food/gold" }
+"0xBA4C" = { name = "draw_officer_stats", comment = "draw an officer's stat block (leadership/war/int + national aggregates)" }
+"0xBB05" = { name = "dispatch_info_screen", comment = "info-screen dispatcher (mem_7896): city summary / detail / country card / officer" }
+"0xBB57" = { name = "show_officer_trait", comment = "draw an officer's special-trait / status popup strings (mask table $BE90)" }
+"0xBBE0" = { name = "auto_exchange_officers", comment = "loop: swap weakest officers + 1000-gold between two countries until a govt fills" }
