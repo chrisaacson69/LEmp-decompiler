@@ -67,6 +67,7 @@ So `coresident_N` IS needed (corrects an earlier note): `coresident_2..9 = [1]`,
 | 10 | **$8000 tactical (field) battle library** (partner of 11/12/14) | calls 0; maps 1/5; data 19, 21, 26 |
 | 11 | **tactical battle turn engine** (human + AI unit control) | calls 0; data 20 |
 | 12 | **tactical battle setup + special combat maneuvers** | calls 0, 11; maps 1/5; data 5, 19, 21 |
+| 13 | **tactical player-unit order handlers + post-battle aftermath** (recovered 2026-07-04) | calls 0, 10, 11; maps 1/5 |
 | 14 | **tactical battle AI** (per-unit decision engine) | calls 0, 11, 12, 21 |
 | 15 | **$8000 new-game setup / scenario / endgame** | calls 0; data 26 |
 | 16 | **$8000 opening / ending cinematics** | data 19 |
@@ -82,7 +83,7 @@ So `coresident_N` IS needed (corrects an earlier note): `coresident_2..9 = [1]`,
 
 ## Leaves-first walk order (by code-call dependency; within a layer, fewest subs first) — **ALL DONE**
 
-Every code bank (0-12, 14-17; bank 13 absent) is now named — **1207 labels total** across the TOML.
+Every code bank (0-17; **bank 13 recovered 2026-07-04**) is now named — **1258 labels total** across the TOML.
 
 - **L0** = fixed floor, banks 30/31 — **DONE** (native floor + bytecode-OS, 0 unnamed).
 - **L1** = **bank 0** (61 subs) — **DONE** ($A000 display + game-state library; all 16 callers resolve it).
@@ -98,9 +99,29 @@ writing it under a manual-confirmed cap) and then **re-confirmed** independently
 the info renderers (5/6), and the turn engine (17). City: +5 pop, +14 gold, +16 food, +18 materials,
 +20 soldiers, +22 horses, +24 guns, +26 wall, +27 policy/event flags.
 
+## The second VM-entry ($E2E3) — a whole 2nd bytecode class (found 2026-07-04)
+
+The engine has **two vm-entry stubs**, not one. Beside `JSR $E509` (the 757-sub main corpus), a variant
+`JSR $E2E3` marks a second class of bytecode subs. `$E2E3` is the same interpreter with a different frame
+setup: it advances the code pointer by **4** (vs `$E509`'s 3), so its subs are `JSR $E2E3 <filler:1><frame:2>`
+— body at **stub+6**, frame word at **stub+4** (`$E509` = body+5, frame+3). Census:
+
+- **Bank 13** — its bank-entry *header* is `JSR $E2E3`, but its 42 command subs are standard `$E509` → it
+  decompiles cleanly and is now **named** (the win). It was wrongly excluded as an "anomaly".
+- **46 `$E2E3` subs interleaved** in banks 0/1/2/8/9/10/12/14 (bank 2 = 12, bank 14 = 9, banks 1/12 = 8 each).
+  These are what the disassembler mis-tagged `{native}`. They are **bytecode, not native**.
+
+**Decode status:** getting the stub/frame offset right (body+6, frame+4) yields sane signatures, but the
+`$E2E3` bodies still don't decode with the current decoder — they use extra opcodes (e.g. `$F0`/`$99`, whose
+handlers are the default no-op slot `$EC8A` yet whose operand lengths differ) and appear to read the
+bytecode IP from a different ZP pointer. **Full `$E2E3` decompilation is an open research item** (needs the
+variant's operand-length table + IP model). Until then the 46 are labeled from call-site contracts, and the
+`{native}` tags on their call sites are known-incorrect (they are bytecode).
+
 ## Open items
+- **Decode the `$E2E3` bytecode dialect** (above) — recovers the 46 interleaved subs as real C.
 - **Dynamic bank args** (bank 1 `set_prg`×4, bank 31 `far_call`/`copy`/`set_prg`): the bank is computed
   at runtime → needs caller-value analysis to resolve those edges.
 - **Data-bank contents:** 21, 22, 24, 25, 18 not yet dumped (19/20/26 done in [01-data-tables](01-data-tables.md)).
-- **Native `$9000` helper residue** inside the `$8000` library banks (1, 10, 15, 16, 17) and the
-  AI banks' `$B600+` native helpers (14) — a separate native-naming pass, not the bytecode walk.
+- **9 native `6502` leaf helpers** (bank 0/1/10) are now named; deeper native residue in the `$8000`
+  library banks remains a separate native-naming pass, not the bytecode walk.
