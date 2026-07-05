@@ -52,24 +52,25 @@ So `coresident_N` IS needed (corrects an earlier note): `coresident_2..9 = [1]`,
 
 ## Dependency graph (source → target(method))
 
-| bank | role | depends on |
+| bank | role (all named) | depends on |
 |---|---|---|
 | 0 | **universal $A000 library — display + game-state** (faces/icons/map/HUD, record-list ops, the `$6EF6` country diplomacy matrix) | data: 19, 20, 26 |
-| 1 | $8000 dispatcher/library | calls 0; maps 1/5/24/25 (+ dynamic) |
-| 2 | shared library | calls 0 |
-| 3, 4 | app logic | call 0, 2 |
-| 5 | app logic + shared | calls 0, 2, 4; data 26 |
-| 6 | app logic | calls 0, 2, 4, 5; data 20 |
-| 7 | app logic | calls 0, 2; data 26 |
-| 8 | app logic | calls 0, 2 |
-| 9 | app logic | calls 0, 2, 5 |
-| 10 | $8000 engine | calls 0; maps 1/5; data 19, 21, 26 |
-| 11 | app logic | calls 0; data 20 |
-| 12 | app logic | calls 0, 11; maps 1/5; data 5, 19, 21 |
-| 14 | **top-level orchestrator** | calls 0, 11, 12, 21 |
-| 15 | $8000 engine | calls 0; data 26 |
-| 16 | $8000 engine | data 19 |
-| 17 | $8000 engine | calls 0; maps 1/5 |
+| 1 | **$8000 turn/command/screen dispatcher library** (partner of 2-9) | calls 0; maps 1/5/24/25 (+ dynamic) |
+| 2 | **combat AI + battle resolution + conquest** (shared library) | calls 0 |
+| 3 | **economy / logistics commands** | call 0, 2 |
+| 4 | **ARMY / develop / personnel / national commands** | call 0, 2 |
+| 5 | **diplomacy commands + country/city info cards** | calls 0, 2, 4; data 26 |
+| 6 | **INFO / status-view subsystem + system menu** | calls 0, 2, 4, 5; data 20 |
+| 7 | **strategic (map-level) war orchestration** | calls 0, 2; data 26 |
+| 8 | **computer-player domestic AI** (decide → execute) | calls 0, 2 |
+| 9 | **computer-player diplomacy AI + turn brain** | calls 0, 2, 5 |
+| 10 | **$8000 tactical (field) battle library** (partner of 11/12/14) | calls 0; maps 1/5; data 19, 21, 26 |
+| 11 | **tactical battle turn engine** (human + AI unit control) | calls 0; data 20 |
+| 12 | **tactical battle setup + special combat maneuvers** | calls 0, 11; maps 1/5; data 5, 19, 21 |
+| 14 | **tactical battle AI** (per-unit decision engine) | calls 0, 11, 12, 21 |
+| 15 | **$8000 new-game setup / scenario / endgame** | calls 0; data 26 |
+| 16 | **$8000 opening / ending cinematics** | data 19 |
+| 17 | **$8000 turn-advance / monthly-upkeep + events engine** | calls 0; maps 1/5 |
 | 30 | OS/UI bytecode lib | maps 1/5; data 19, 20, 26 |
 | 31 | fixed OS (`os_main`) | far_call 2/11/18/20; maps 0/1/5/30 (+ dynamic) |
 
@@ -79,22 +80,27 @@ So `coresident_N` IS needed (corrects an earlier note): `coresident_2..9 = [1]`,
 - **data:** bank 26 (names/records) ← 6; bank 19 (font/scenes) ← 5; bank 20 (messages) ← 5; bank 21 ← 3.
 - **banks 18, 22** are reached **only** via bank 31 `far_call` (invisible to a code-call-only scan).
 
-## Leaves-first walk order (by code-call dependency; within a layer, fewest subs first)
+## Leaves-first walk order (by code-call dependency; within a layer, fewest subs first) — **ALL DONE**
+
+Every code bank (0-12, 14-17; bank 13 absent) is now named — **1207 labels total** across the TOML.
 
 - **L0** = fixed floor, banks 30/31 — **DONE** (native floor + bytecode-OS, 0 unnamed).
 - **L1** = **bank 0** (61 subs) — **DONE** ($A000 display + game-state library; all 16 callers resolve it).
-- **L2 = the two `$8000` co-resident libraries** (revised after finding the co-resident calls):
-  **bank 1** (61 subs — partner of banks 2-9) and **bank 10** (61 subs — partner of 11/12/14). These
-  must precede their clusters, so they come *before* the small banks despite their size.
-- **L3** = the app-logic banks (need bank 0 + their $8000 partner): 15(18)†, 16(19)†, 2(26), 8(32),
-  3(43), 4(49), 7(54), 12(22), 11(55), 17(60)†. († = the standalone $8000 banks 15/16/17, no partner.)
-- **L4** = 5(34), 14(43). **L5** = 6(45), 9(74) — deepest orchestrators.
+- **L2 = the two `$8000` co-resident libraries** — **DONE**: **bank 1** (partner of banks 2-9) and
+  **bank 10** (partner of 11/12/14). Precede their clusters despite their size.
+- **L3-L5 = the app/logic banks** — **DONE**: command handlers 3/4/7/8, diplomacy 5, info 6, AI 8/9;
+  tactical battle 10/11/12/14; setup/cinematics 15/16; the turn engine 17.
+- Two AI banks (9, 14) also carry **native `{native}` helpers** in their own window (diplomacy/city
+  target-pickers `$BAD3`/`$BCB0`; unit/cell scanners `$BAF7`/`$B9A0`) — named from their call contracts.
 
-The record-field schema stays generic (`field_N`) until a command handler in these banks is caught
-writing an offset with a manual-confirmed cap — that's how L2-L5 will pin gold/soldiers/loyalty.
+The record-field schema was pinned **command-first** (an offset is named only when a handler is caught
+writing it under a manual-confirmed cap) and then **re-confirmed** independently by the AI banks (8/9),
+the info renderers (5/6), and the turn engine (17). City: +5 pop, +14 gold, +16 food, +18 materials,
++20 soldiers, +22 horses, +24 guns, +26 wall, +27 policy/event flags.
 
 ## Open items
 - **Dynamic bank args** (bank 1 `set_prg`×4, bank 31 `far_call`/`copy`/`set_prg`): the bank is computed
   at runtime → needs caller-value analysis to resolve those edges.
 - **Data-bank contents:** 21, 22, 24, 25, 18 not yet dumped (19/20/26 done in [01-data-tables](01-data-tables.md)).
-- The `banks_at_8000` residence is set; app-bank subs are still unnamed (the command-walk is next).
+- **Native `$9000` helper residue** inside the `$8000` library banks (1, 10, 15, 16, 17) and the
+  AI banks' `$B600+` native helpers (14) — a separate native-naming pass, not the bytecode walk.
