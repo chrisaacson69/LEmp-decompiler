@@ -9,6 +9,10 @@
 
 ## Status
 
+**COMPLETE (2026-07-05).** Every code bank (0–17) named, native residue resolved — **799 bytecode subs
++ 55 native helpers** across the 18 app banks, 0 decompile errors; ~1300 labels total. Headline finding:
+the **`$E2E3` native-call trampoline** (a native ABI callable from bytecode). See [docs/03-completion](docs/03-completion.md).
+
 First-contact recon + **full fixed-bank native-floor walk** done (2026-07-02). The **bytecode VM
 transfers** — same machine as na2/bk/na1, only the addresses moved. Fixed engine bank walked vs NA2 to
 **0 unnamed** (300 native subs named, 229 relocated-identical + 71 hand-read), so the engine *is* NA2's. The one real divergence —
@@ -39,17 +43,11 @@ Closest sibling by reset-routine match: **NA2 (49/64 bytes)** ≫ BK (25/64). Th
 Engine constants live in the `[lemp]` block of `koei-nes/tools/games.toml`; the symbol table will be
 `mesen-labels.toml` (not yet generated). Start with [docs/00-recon.md](docs/00-recon.md).
 
-## Chapters (planned — the standard set)
+## Chapters
 - [00 — Recon](docs/00-recon.md): first-contact, MMC5 family placement, engine constants, native floor, bottom-up bytecode, data-walk. **← done**
 - [01 — Data tables & strings](docs/01-data-tables.md): data-bank map, record schema (generals/countries/cities), name tables, UI strings, message pool. **← done**
 - [02 — Bank map & cross-bank deps](docs/02-bank-map.md): load model, residence ($8000 vs $A000), all cross-bank methods, dependency graph. **← done**
-- 01 — Boot & dispatch: reset → OS (`$E17D`) → VM → the OS-driven turn model.
-- 02 — Control flow: the bytecode VM, MMC5 cross-bank call forms, native ABI.
-- 03 — Player commands & record schema.
-- 04 — AI architecture.
-- 05 — Events & lifecycle (the Napoleonic calendar / diplomacy layer).
-- 06 — Combat overview.
-- 07 — Tactical engine.
+- [03 — Completion](docs/03-completion.md): the capstone — subsystem map, the quadruple-confirmed schema, the findings (engine≠config, co-resident libraries, the **`$E2E3` native trampoline**, bank 13), and method. **← done**
 
 Cross-game record schemas: `koei-nes/tools/RECORD_SCHEMAS.md`. The ROM is **not committed**
 (copyright); it lives at `LEmp-decompiler/<rom>` per the resolver. Game manual in `docs/` (also
